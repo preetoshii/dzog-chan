@@ -27,6 +27,17 @@ function App() {
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const voiceModeRef = useRef(false)
+  const responseRef = useRef('')
+  const conversationHistoryRef = useRef<Array<{role: string, content: string}>>([])
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    responseRef.current = response
+  }, [response])
+  
+  useEffect(() => {
+    conversationHistoryRef.current = conversationHistory
+  }, [conversationHistory])
 
   // Log the prompt on component mount and whenever it changes
   useEffect(() => {
@@ -56,7 +67,7 @@ function App() {
     setIsProcessing(true)
     
     // If there's an existing response, fade it out first
-    if (response) {
+    if (responseRef.current) {
       setShowResponse(false)
       // Wait for partial fade out before continuing (don't wait for full animation)
       await new Promise(resolve => setTimeout(resolve, 800))
@@ -70,7 +81,7 @@ function App() {
     
     try {
       // Build messages array with history (keep last 10 messages to prevent token overflow)
-      const recentHistory = conversationHistory.slice(-10)
+      const recentHistory = conversationHistoryRef.current.slice(-10)
       const messages = [
         { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
         ...recentHistory,
@@ -115,7 +126,7 @@ function App() {
         setIsProcessing(false)
       }, 2500)
     }
-  }, [response, conversationHistory, isMuted])
+  }, [isMuted])
 
   const startAudioVisualization = async () => {
     try {
