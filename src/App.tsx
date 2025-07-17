@@ -40,7 +40,9 @@ function App() {
   // Show initial guidance on component mount
   useEffect(() => {
     const initialGuidance = getRandomGuidance()
+    // Set response but don't show it yet
     setResponse(initialGuidance)
+    setShowResponse(false)
     // Small delay before fading in for better effect
     setTimeout(() => {
       setShowResponse(true)
@@ -225,6 +227,13 @@ function App() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
+    
+    // Blur the input to hide the keyboard on mobile
+    const inputElement = e.currentTarget.querySelector('input')
+    if (inputElement) {
+      inputElement.blur()
+    }
+    
     await processInput(input)
   }
 
@@ -328,7 +337,7 @@ function App() {
       <div className="content">
         <div className="response-container">
           {response && (
-            <p className={`response ${showResponse ? 'fade-in' : 'fade-out'}`}>
+            <p className={`response ${showResponse ? 'fade-in' : ''}`}>
               {response.split('. ').map((sentence, index, array) => (
                 <span key={index}>
                   {sentence}{index < array.length - 1 ? '.' : ''}
