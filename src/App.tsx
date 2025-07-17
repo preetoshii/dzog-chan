@@ -212,14 +212,14 @@ function App() {
 
       recognitionRef.current.onend = () => {
         // If still in voice mode and not currently processing, restart
-        if (voiceModeRef.current) {
+        if (voiceModeRef.current && !isProcessing) {
           setTimeout(() => {
             startListening()
           }, 500)
         }
       }
     }
-  }, [processInput, startListening])
+  }, [processInput, startListening, isProcessing])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
