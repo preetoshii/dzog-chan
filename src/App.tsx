@@ -46,6 +46,12 @@ function App() {
   }, [])
 
   const processInput = useCallback(async (inputText: string) => {
+    // Prevent concurrent API calls
+    if (isProcessing) {
+      console.log('Already processing, skipping duplicate request')
+      return
+    }
+    
     setInputFading(true)
     setIsProcessing(true)
     
@@ -191,11 +197,17 @@ function App() {
         // Immediately process the voice input without showing text
         if (transcript.trim()) {
           setIsListening(false)
+          // Stop recognition to prevent onend from firing
+          if (recognitionRef.current) {
+            recognitionRef.current.stop()
+          }
           await processInput(transcript)
           
           // If still in voice mode, restart listening after response is ready
-          if (voiceModeRef.current) {
-            // Wait for processing to complete before restarting
+          if (voiceModeRef.current && !isProcessing) {
+            setTimeout(() => {
+              startListening()
+            }, 3000) // Wait 3 seconds before restarting
           }
         }
       }
