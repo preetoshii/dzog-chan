@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import OpenAI from 'openai'
 import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
+import { getRandomGuidance } from './initial-guidance'
 import './App.css'
 
 const openai = new OpenAI({
@@ -9,12 +10,6 @@ const openai = new OpenAI({
 })
 
 function App() {
-  // Log the prompt on component mount and whenever it changes
-  useEffect(() => {
-    console.log('=== DZOGCHEN SYSTEM PROMPT ===')
-    console.log(DZOGCHEN_SYSTEM_PROMPT)
-    console.log('==============================')
-  }, [DZOGCHEN_SYSTEM_PROMPT])
   const [isDark, setIsDark] = useState(true)
   const [input, setInput] = useState('')
   const [response, setResponse] = useState('')
@@ -24,11 +19,29 @@ function App() {
   const [inputFading, setInputFading] = useState(false)
   const [voiceMode, setVoiceMode] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([])
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const voiceModeRef = useRef(false)
+
+  // Log the prompt on component mount and whenever it changes
+  useEffect(() => {
+    console.log('=== DZOGCHEN SYSTEM PROMPT ===')
+    console.log(DZOGCHEN_SYSTEM_PROMPT)
+    console.log('==============================')
+  }, [DZOGCHEN_SYSTEM_PROMPT])
+
+  // Show initial guidance on component mount
+  useEffect(() => {
+    const initialGuidance = getRandomGuidance()
+    setResponse(initialGuidance)
+    // Small delay before fading in for better effect
+    setTimeout(() => {
+      setShowResponse(true)
+    }, 500)
+  }, [])
 
   const processInput = useCallback(async (inputText: string) => {
     setInputFading(true)
@@ -48,12 +61,17 @@ function App() {
     }, 300)
     
     try {
+      // Build messages array with history (keep last 10 messages to prevent token overflow)
+      const recentHistory = conversationHistory.slice(-10)
+      const messages = [
+        { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
+        ...recentHistory,
+        { role: "user", content: inputText }
+      ]
+
       const completion = await openai.chat.completions.create({
         model: "gpt-4",
-        messages: [
-          { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
-          { role: "user", content: inputText }
-        ],
+        messages: messages,
         temperature: 0.9,
         max_tokens: 50
       })
@@ -61,6 +79,14 @@ function App() {
       const answer = completion.choices[0].message.content || ''
       // If response is empty or just whitespace, show namaste gesture
       const finalResponse = answer.trim() === '' ? '🙏' : answer
+      
+      // Update conversation history
+      setConversationHistory(prev => [
+        ...prev,
+        { role: "user", content: inputText },
+        { role: "assistant", content: answer } // Store original response, not emoji
+      ])
+      
       setResponse(finalResponse)
       setShowResponse(true)
     } catch (error) {
@@ -73,7 +99,7 @@ function App() {
         setIsProcessing(false)
       }, 2500)
     }
-  }, [response])
+  }, [response, conversationHistory])
 
   const startAudioVisualization = async () => {
     try {
