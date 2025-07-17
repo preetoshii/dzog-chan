@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import OpenAI from 'openai'
 import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
 import './App.css'
@@ -18,46 +18,34 @@ function App() {
   const [isDark, setIsDark] = useState(true)
   const [input, setInput] = useState('')
   const [response, setResponse] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [showResponse, setShowResponse] = useState(false)
   const [audioLevel, setAudioLevel] = useState(0)
+  const [inputFading, setInputFading] = useState(false)
+  const [voiceMode, setVoiceMode] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef<number | null>(null)
+  const voiceModeRef = useRef(false)
 
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
-      recognitionRef.current = new SpeechRecognition()
-      recognitionRef.current.continuous = false
-      recognitionRef.current.interimResults = false
-      recognitionRef.current.lang = 'en-US'
-
-      recognitionRef.current.onresult = async (event: any) => {
-        const transcript = event.results[0][0].transcript
-        setIsListening(false)
-        
-        // Immediately process the voice input without showing text
-        if (transcript.trim()) {
-          await processInput(transcript)
-        }
-      }
-
-      recognitionRef.current.onerror = () => {
-        setIsListening(false)
-      }
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false)
-      }
+  const processInput = useCallback(async (inputText: string) => {
+    setInputFading(true)
+    setIsProcessing(true)
+    
+    // If there's an existing response, fade it out first
+    if (response) {
+      setShowResponse(false)
+      // Wait for fade out animation
+      await new Promise(resolve => setTimeout(resolve, 500))
     }
-  }, [])
-
-  const processInput = async (inputText: string) => {
-    setIsLoading(true)
-    setShowResponse(false)
+    
+    // Clear input after fade starts
+    setTimeout(() => {
+      setInput('')
+      setInputFading(false)
+    }, 300)
     
     try {
       const completion = await openai.chat.completions.create({
@@ -73,21 +61,14 @@ function App() {
       const answer = completion.choices[0].message.content || ''
       setResponse(answer)
       setShowResponse(true)
-      setInput('')
     } catch (error) {
       console.error('Error:', error)
       setResponse('Silence speaks louder')
       setShowResponse(true)
     } finally {
-      setIsLoading(false)
+      setIsProcessing(false)
     }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    await processInput(input)
-  }
+  }, [response])
 
   const startAudioVisualization = async () => {
     try {
@@ -99,14 +80,18 @@ function App() {
       analyserRef.current.fftSize = 256
       
       const updateAudioLevel = () => {
-        if (!analyserRef.current || !isListening) return
+        if (!analyserRef.current) return
         
         const bufferLength = analyserRef.current.frequencyBinCount
         const dataArray = new Uint8Array(bufferLength)
         analyserRef.current.getByteFrequencyData(dataArray)
         
+        // Get the average volume from frequency data
         const average = dataArray.reduce((a, b) => a + b) / bufferLength
-        setAudioLevel(average / 255)
+        
+        // Normalize and apply some smoothing for better visual feedback
+        const normalizedLevel = Math.min(average / 128, 1) // More sensitive scaling
+        setAudioLevel(normalizedLevel)
         
         animationFrameRef.current = requestAnimationFrame(updateAudioLevel)
       }
@@ -127,14 +112,89 @@ function App() {
     setAudioLevel(0)
   }
 
-  const toggleListening = () => {
-    if (isListening) {
-      recognitionRef.current?.stop()
+  const startListening = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start()
+        setIsListening(true)
+        startAudioVisualization()
+      } catch (error) {
+        console.log('Speech recognition already started')
+      }
+    }
+  }, [])
+
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setIsListening(false)
       stopAudioVisualization()
+    }
+  }, [])
+
+  useEffect(() => {
+    voiceModeRef.current = voiceMode
+  }, [voiceMode])
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = false
+      recognitionRef.current.interimResults = false
+      recognitionRef.current.lang = 'en-US'
+
+      recognitionRef.current.onresult = async (event: any) => {
+        const transcript = event.results[0][0].transcript
+        
+        // Immediately process the voice input without showing text
+        if (transcript.trim()) {
+          setIsListening(false)
+          await processInput(transcript)
+          
+          // If still in voice mode, restart listening after response is ready
+          if (voiceModeRef.current) {
+            // Wait for processing to complete before restarting
+          }
+        }
+      }
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false)
+        // If still in voice mode, restart listening
+        if (voiceModeRef.current) {
+          setTimeout(() => {
+            startListening()
+          }, 1000)
+        }
+      }
+
+      recognitionRef.current.onend = () => {
+        // If still in voice mode and not currently processing, restart
+        if (voiceModeRef.current) {
+          setTimeout(() => {
+            startListening()
+          }, 500)
+        }
+      }
+    }
+  }, [processInput, startListening])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim()) return
+    await processInput(input)
+  }
+
+  const toggleVoiceMode = () => {
+    if (voiceMode) {
+      // Switching back to text mode
+      setVoiceMode(false)
+      stopListening()
     } else {
-      recognitionRef.current?.start()
-      setIsListening(true)
-      startAudioVisualization()
+      // Switching to voice mode
+      setVoiceMode(true)
+      startListening()
     }
   }
 
@@ -143,6 +203,17 @@ function App() {
       stopAudioVisualization()
     }
   }, [])
+
+  // Restart listening when entering voice mode or after processing completes
+  useEffect(() => {
+    if (voiceMode && !isListening && !isProcessing) {
+      // Delay after response appears before reactivating voice
+      const timer = setTimeout(() => {
+        startListening()
+      }, showResponse ? 1000 : 300)
+      return () => clearTimeout(timer)
+    }
+  }, [voiceMode, isListening, isProcessing, showResponse, startListening])
 
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
@@ -164,64 +235,45 @@ function App() {
 
       <div className="content">
         <div className="response-container">
-          {showResponse && (
-            <p className="response">
+          {response && (
+            <p className={`response ${showResponse ? 'fade-in' : 'fade-out'}`}>
               {response}
             </p>
           )}
-          {isLoading && (
-            <div className="loader"></div>
-          )}
         </div>
-
-        {isListening ? (
-          <div className="voice-visualization">
-            <div className="voice-rings">
-              <div 
-                className="voice-ring ring-1" 
-                style={{ transform: `scale(${1 + audioLevel * 0.5})` }}
-              ></div>
-              <div 
-                className="voice-ring ring-2" 
-                style={{ transform: `scale(${1 + audioLevel * 0.7})` }}
-              ></div>
-              <div 
-                className="voice-ring ring-3" 
-                style={{ transform: `scale(${1 + audioLevel * 0.9})` }}
-              ></div>
-              <button
-                type="button"
-                onClick={toggleListening}
-                className="voice-button-center"
-              >
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </button>
-            </div>
-            <p className="listening-text">Listening...</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="input-form">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask the master..."
-              className="input-field"
-            />
-            <button
-              type="button"
-              onClick={toggleListening}
-              className={`voice-button ${isListening ? 'listening' : ''}`}
-            >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
-            </button>
-          </form>
-        )}
       </div>
+
+      <form onSubmit={handleSubmit} className={`input-form ${voiceMode ? 'voice-mode' : ''}`}>
+        <div 
+          className={`input-wrapper ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
+          style={voiceMode && !isProcessing ? { transform: `scale(${1 + audioLevel * 0.6})` } : {}}
+        >
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder=""
+            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
+            style={voiceMode && !isProcessing ? { 
+              borderWidth: `${2 + audioLevel * 3}px`,
+              borderColor: isDark 
+                ? `rgba(${59 + audioLevel * 100}, ${130 + audioLevel * 125}, 255, ${0.6 + audioLevel * 0.4})`
+                : `rgba(${59 + audioLevel * 50}, ${130 + audioLevel * 100}, 255, ${0.8 + audioLevel * 0.2})`,
+              boxShadow: `0 0 ${audioLevel * 30}px rgba(59, 130, 255, ${audioLevel * 0.5})`
+            } : {}}
+            disabled={voiceMode}
+          />
+          <button
+            type="button"
+            onClick={toggleVoiceMode}
+            className={`voice-button ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
