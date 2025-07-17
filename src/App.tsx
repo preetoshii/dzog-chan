@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import OpenAI from 'openai'
 import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
 import { getRandomGuidance } from './initial-guidance'
+import { generateSpeech, playAudio } from './elevenlabs-config'
 import './App.css'
 
 const openai = new OpenAI({
@@ -19,6 +20,7 @@ function App() {
   const [inputFading, setInputFading] = useState(false)
   const [voiceMode, setVoiceMode] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
   const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([])
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -89,6 +91,14 @@ function App() {
       
       setResponse(finalResponse)
       setShowResponse(true)
+      
+      // Generate and play voice response if not muted and not just emoji
+      if (!isMuted && finalResponse !== '🙏') {
+        const audioBuffer = await generateSpeech(finalResponse)
+        if (audioBuffer) {
+          playAudio(audioBuffer)
+        }
+      }
     } catch (error) {
       console.error('Error:', error)
       setResponse('Silence speaks louder')
@@ -99,7 +109,7 @@ function App() {
         setIsProcessing(false)
       }, 2500)
     }
-  }, [response, conversationHistory])
+  }, [response, conversationHistory, isMuted])
 
   const startAudioVisualization = async () => {
     try {
@@ -273,6 +283,23 @@ function App() {
         ) : (
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        )}
+      </button>
+
+      <button
+        onClick={() => setIsMuted(!isMuted)}
+        className="mute-toggle"
+        aria-label="Toggle mute"
+      >
+        {isMuted ? (
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        ) : (
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
           </svg>
         )}
       </button>
