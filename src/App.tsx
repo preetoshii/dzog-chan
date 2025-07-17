@@ -281,7 +281,7 @@ function App() {
     // Only restart if in voice mode, not currently listening, not processing, and not playing audio
     if (voiceMode && !isListening && !isProcessing && !isPlayingAudio) {
       // Wait a bit before restarting to ensure everything is settled
-      const delay = showResponse ? 4000 : 500
+      const delay = showResponse ? 1000 : 500
       restartTimerRef.current = setTimeout(() => {
         if (voiceMode && !isProcessing && !isPlayingAudio) {
           startListening()
