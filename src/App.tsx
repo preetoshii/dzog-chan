@@ -37,8 +37,8 @@ function App() {
     // If there's an existing response, fade it out first
     if (response) {
       setShowResponse(false)
-      // Wait for fade out animation
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Wait for partial fade out before continuing (don't wait for full animation)
+      await new Promise(resolve => setTimeout(resolve, 800))
     }
     
     // Clear input after fade starts
@@ -59,14 +59,19 @@ function App() {
       })
 
       const answer = completion.choices[0].message.content || ''
-      setResponse(answer)
+      // If response is empty or just whitespace, show namaste gesture
+      const finalResponse = answer.trim() === '' ? '🙏' : answer
+      setResponse(finalResponse)
       setShowResponse(true)
     } catch (error) {
       console.error('Error:', error)
       setResponse('Silence speaks louder')
       setShowResponse(true)
     } finally {
-      setIsProcessing(false)
+      // Add delay before re-enabling input to let user absorb the response
+      setTimeout(() => {
+        setIsProcessing(false)
+      }, 2500)
     }
   }, [response])
 
@@ -204,13 +209,26 @@ function App() {
     }
   }, [])
 
+  // Handle Escape key to exit voice mode
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && voiceMode) {
+        setVoiceMode(false)
+        stopListening()
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [voiceMode, stopListening])
+
   // Restart listening when entering voice mode or after processing completes
   useEffect(() => {
     if (voiceMode && !isListening && !isProcessing) {
       // Delay after response appears before reactivating voice
       const timer = setTimeout(() => {
         startListening()
-      }, showResponse ? 1000 : 300)
+      }, showResponse ? 3000 : 300)
       return () => clearTimeout(timer)
     }
   }, [voiceMode, isListening, isProcessing, showResponse, startListening])
@@ -237,7 +255,12 @@ function App() {
         <div className="response-container">
           {response && (
             <p className={`response ${showResponse ? 'fade-in' : 'fade-out'}`}>
-              {response}
+              {response.split('. ').map((sentence, index, array) => (
+                <span key={index}>
+                  {sentence}{index < array.length - 1 ? '.' : ''}
+                  {index < array.length - 1 && <br />}
+                </span>
+              ))}
             </p>
           )}
         </div>

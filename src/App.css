@@ -79,9 +79,10 @@
 }
 
 .response {
-  font-size: 2rem;
+  font-size: 1.75rem;
   text-align: center;
   opacity: 0;
+  line-height: 1.6;
 }
 
 .response.fade-in {
@@ -89,12 +90,12 @@
 }
 
 .response.fade-out {
-  animation: fadeOut 0.5s ease-out forwards;
+  animation: fadeOut 1.5s ease-out forwards;
 }
 
 @media (min-width: 768px) {
   .response {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
   }
 }
 
@@ -259,7 +260,7 @@
 }
 
 .dark .voice-button.voice-mode {
-  color: rgba(255, 255, 255, 1);
+  color: rgba(59, 130, 255, 1);
 }
 
 .light .voice-button {
@@ -272,7 +273,7 @@
 }
 
 .light .voice-button.voice-mode {
-  color: rgba(0, 0, 0, 1);
+  color: rgba(59, 130, 255, 1);
 }
 
 .voice-button svg {
