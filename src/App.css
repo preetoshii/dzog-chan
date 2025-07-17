@@ -1,0 +1,315 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  position: relative;
+}
+
+.container.dark {
+  background-color: #000;
+  color: #fff;
+}
+
+.container.light {
+  background-color: #fff;
+  color: #000;
+}
+
+.dark-mode-toggle {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark .dark-mode-toggle {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .dark-mode-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.light .dark-mode-toggle {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.light .dark-mode-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #000;
+}
+
+.dark-mode-toggle svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.content {
+  width: 100%;
+  max-width: 42rem;
+  padding: 0 2rem;
+}
+
+.response-container {
+  min-height: 12.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4rem;
+}
+
+.response {
+  font-size: 2rem;
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 2s ease-in-out forwards;
+}
+
+@media (min-width: 768px) {
+  .response {
+    font-size: 2.5rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loader {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.dark .loader {
+  background-color: #fff;
+}
+
+.light .loader {
+  background-color: #000;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.input-form {
+  position: relative;
+}
+
+.input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  padding-right: 4rem;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  outline: none;
+}
+
+.dark .input-field {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .input-field::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .input-field:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.light .input-field {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #000;
+}
+
+.light .input-field::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.light .input-field:focus {
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
+.voice-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-button {
+  color: currentColor;
+}
+
+.dark .voice-button {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .voice-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.light .voice-button {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.light .voice-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.voice-button.listening {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.voice-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Voice visualization styles */
+.voice-visualization {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.voice-rings {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-ring {
+  position: absolute;
+  border-radius: 50%;
+  transition: transform 0.1s ease-out;
+}
+
+.voice-ring.ring-1 {
+  width: 4rem;
+  height: 4rem;
+  border: 2px solid;
+  opacity: 0.8;
+}
+
+.voice-ring.ring-2 {
+  width: 5.5rem;
+  height: 5.5rem;
+  border: 2px solid;
+  opacity: 0.5;
+}
+
+.voice-ring.ring-3 {
+  width: 7rem;
+  height: 7rem;
+  border: 2px solid;
+  opacity: 0.3;
+}
+
+.dark .voice-ring {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.light .voice-ring {
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.voice-button-center {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  z-index: 10;
+}
+
+.dark .voice-button-center {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .voice-button-center:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.light .voice-button-center {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.light .voice-button-center:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.voice-button-center svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.listening-text {
+  font-size: 0.875rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.dark .listening-text {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.light .listening-text {
+  color: rgba(0, 0, 0, 0.6);
+}
