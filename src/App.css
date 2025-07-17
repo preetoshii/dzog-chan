@@ -125,10 +125,12 @@
   text-align: center;
   opacity: 0;
   line-height: 1.6;
+  visibility: hidden;
 }
 
 .response.fade-in {
   animation: fadeIn 2s ease-in-out forwards;
+  visibility: visible;
 }
 
 .response.fade-out {
