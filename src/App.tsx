@@ -121,10 +121,7 @@ function App() {
       setResponse('Silence speaks louder')
       setShowResponse(true)
     } finally {
-      // Add delay before re-enabling input to let user absorb the response
-      setTimeout(() => {
-        setIsProcessing(false)
-      }, 2500)
+      setIsProcessing(false)
     }
   }, [response, conversationHistory, isMuted, isListening, isPlayingAudio])
 
