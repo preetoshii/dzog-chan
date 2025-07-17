@@ -23,6 +23,10 @@ function App() {
   const [isMuted, setIsMuted] = useState(false)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
+  
+  // Detect if mobile device
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+  
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
@@ -234,20 +238,26 @@ function App() {
     await processInput(input)
   }
 
-  const toggleVoiceMode = () => {
-    if (voiceMode) {
-      // Switching back to text mode
-      setVoiceMode(false)
-      stopListening()
-      // Clear any pending restart timers
-      if (restartTimerRef.current) {
-        clearTimeout(restartTimerRef.current)
-        restartTimerRef.current = null
-      }
-    } else {
-      // Switching to voice mode
-      setVoiceMode(true)
+  const handleVoiceButtonClick = () => {
+    if (isMobile && voiceMode && !isListening && !isProcessing) {
+      // On mobile in voice mode, treat as push-to-talk
       startListening()
+    } else {
+      // Toggle voice mode
+      if (voiceMode) {
+        // Switching back to text mode
+        setVoiceMode(false)
+        stopListening()
+        // Clear any pending restart timers
+        if (restartTimerRef.current) {
+          clearTimeout(restartTimerRef.current)
+          restartTimerRef.current = null
+        }
+      } else {
+        // Switching to voice mode
+        setVoiceMode(true)
+        startListening()
+      }
     }
   }
 
@@ -278,6 +288,11 @@ function App() {
       restartTimerRef.current = null
     }
 
+    // On mobile, don't auto-restart listening to prevent continuous activation sounds
+    if (isMobile) {
+      return
+    }
+
     // Only restart if in voice mode, not currently listening, not processing, and not playing audio
     if (voiceMode && !isListening && !isProcessing && !isPlayingAudio) {
       // Wait a bit before restarting to ensure everything is settled
@@ -294,7 +309,7 @@ function App() {
         clearTimeout(restartTimerRef.current)
       }
     }
-  }, [voiceMode, isListening, isProcessing, isPlayingAudio, showResponse, startListening])
+  }, [voiceMode, isListening, isProcessing, isPlayingAudio, showResponse, startListening, isMobile])
 
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
@@ -368,7 +383,7 @@ function App() {
           />
           <button
             type="button"
-            onClick={toggleVoiceMode}
+            onClick={handleVoiceButtonClick}
             className={`voice-button ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
           >
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
