@@ -21,12 +21,14 @@ function App() {
   const [voiceMode, setVoiceMode] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
-  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([])
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const voiceModeRef = useRef(false)
+  const restartTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Log the prompt on component mount and whenever it changes
   useEffect(() => {
@@ -65,7 +67,7 @@ function App() {
     try {
       // Build messages array with history (keep last 10 messages to prevent token overflow)
       const recentHistory = conversationHistory.slice(-10)
-      const messages = [
+      const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
         ...recentHistory,
         { role: "user", content: inputText }
@@ -94,9 +96,22 @@ function App() {
       
       // Generate and play voice response if not muted and not just emoji
       if (!isMuted && finalResponse !== '🙏') {
+        // Stop listening while audio is playing to prevent feedback
+        if (voiceModeRef.current && recognitionRef.current) {
+          try {
+            recognitionRef.current.stop()
+          } catch (e) {
+            // Already stopped
+          }
+          setIsListening(false)
+          stopAudioVisualization()
+        }
+        
         const audioBuffer = await generateSpeech(finalResponse)
         if (audioBuffer) {
-          playAudio(audioBuffer)
+          setIsPlayingAudio(true)
+          await playAudio(audioBuffer)
+          setIsPlayingAudio(false)
         }
       }
     } catch (error) {
@@ -109,7 +124,7 @@ function App() {
         setIsProcessing(false)
       }, 2500)
     }
-  }, [response, conversationHistory, isMuted])
+  }, [response, conversationHistory, isMuted, isListening, isPlayingAudio])
 
   const startAudioVisualization = async () => {
     try {
@@ -192,31 +207,17 @@ function App() {
         if (transcript.trim()) {
           setIsListening(false)
           await processInput(transcript)
-          
-          // If still in voice mode, restart listening after response is ready
-          if (voiceModeRef.current) {
-            // Wait for processing to complete before restarting
-          }
         }
       }
 
       recognitionRef.current.onerror = () => {
         setIsListening(false)
-        // If still in voice mode, restart listening
-        if (voiceModeRef.current) {
-          setTimeout(() => {
-            startListening()
-          }, 1000)
-        }
+        stopAudioVisualization()
       }
 
       recognitionRef.current.onend = () => {
-        // If still in voice mode and not currently processing, restart
-        if (voiceModeRef.current) {
-          setTimeout(() => {
-            startListening()
-          }, 500)
-        }
+        setIsListening(false)
+        stopAudioVisualization()
       }
     }
   }, [processInput, startListening])
@@ -232,6 +233,11 @@ function App() {
       // Switching back to text mode
       setVoiceMode(false)
       stopListening()
+      // Clear any pending restart timers
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current)
+        restartTimerRef.current = null
+      }
     } else {
       // Switching to voice mode
       setVoiceMode(true)
@@ -258,16 +264,31 @@ function App() {
     return () => window.removeEventListener('keydown', handleEscape)
   }, [voiceMode, stopListening])
 
-  // Restart listening when entering voice mode or after processing completes
+  // Single source of truth for restarting voice mode
   useEffect(() => {
-    if (voiceMode && !isListening && !isProcessing) {
-      // Delay after response appears before reactivating voice
-      const timer = setTimeout(() => {
-        startListening()
-      }, showResponse ? 3000 : 300)
-      return () => clearTimeout(timer)
+    // Clear any existing timer
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current)
+      restartTimerRef.current = null
     }
-  }, [voiceMode, isListening, isProcessing, showResponse, startListening])
+
+    // Only restart if in voice mode, not currently listening, not processing, and not playing audio
+    if (voiceMode && !isListening && !isProcessing && !isPlayingAudio) {
+      // Wait a bit before restarting to ensure everything is settled
+      const delay = showResponse ? 4000 : 500
+      restartTimerRef.current = setTimeout(() => {
+        if (voiceMode && !isProcessing && !isPlayingAudio) {
+          startListening()
+        }
+      }, delay)
+    }
+
+    return () => {
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current)
+      }
+    }
+  }, [voiceMode, isListening, isProcessing, isPlayingAudio, showResponse, startListening])
 
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>

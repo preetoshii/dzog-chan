@@ -64,17 +64,25 @@ export async function generateSpeech(text: string): Promise<ArrayBuffer | null> 
   }
 }
 
-export function playAudio(audioBuffer: ArrayBuffer) {
-  const blob = new Blob([audioBuffer], { type: 'audio/mpeg' })
-  const url = URL.createObjectURL(blob)
-  const audio = new Audio(url)
-  
-  audio.play()
-  
-  // Clean up the URL after playing
-  audio.addEventListener('ended', () => {
-    URL.revokeObjectURL(url)
+export function playAudio(audioBuffer: ArrayBuffer): Promise<void> {
+  return new Promise((resolve) => {
+    const blob = new Blob([audioBuffer], { type: 'audio/mpeg' })
+    const url = URL.createObjectURL(blob)
+    const audio = new Audio(url)
+    
+    audio.addEventListener('ended', () => {
+      URL.revokeObjectURL(url)
+      resolve()
+    })
+    
+    audio.addEventListener('error', () => {
+      URL.revokeObjectURL(url)
+      resolve() // Resolve even on error to continue flow
+    })
+    
+    audio.play().catch(() => {
+      URL.revokeObjectURL(url)
+      resolve()
+    })
   })
-  
-  return audio
 }
