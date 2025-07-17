@@ -28,7 +28,7 @@ function App() {
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const voiceModeRef = useRef(false)
-  const restartTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Log the prompt on component mount and whenever it changes
   useEffect(() => {
