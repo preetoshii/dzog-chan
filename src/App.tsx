@@ -29,6 +29,7 @@ function App() {
   const [lastResponseTime, setLastResponseTime] = useState<number>(Date.now())
   const [showTriangleAfterDelay, setShowTriangleAfterDelay] = useState(false)
   const [fadeOutType, setFadeOutType] = useState<'quick' | 'slow'>('quick')
+  const [isTriangleFadingOut, setIsTriangleFadingOut] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -79,10 +80,20 @@ function App() {
     // If there's an existing response, fade it out first
     if (response && showResponse) {
       setFadeOutType('quick')
-      setIsFadingOut(true)
-      // Wait for fade out animation (1.5s for quick fade)
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      setIsFadingOut(false)
+      if (response === '[PRAYER_HANDS]' || showTriangleAfterDelay) {
+        // Handle triangle fade-out
+        setIsTriangleFadingOut(true)
+        // Wait for fade out animation (1.5s for quick fade)
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        setIsTriangleFadingOut(false)
+        setShowTriangleAfterDelay(false)
+      } else {
+        // Handle text fade-out
+        setIsFadingOut(true)
+        // Wait for fade out animation (1.5s for quick fade)
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        setIsFadingOut(false)
+      }
       setShowResponse(false)
       setResponse('') // Clear response after fade completes
     }
@@ -481,8 +492,8 @@ function App() {
             </div>
           )}
           {/* Show triangle - either standalone or fading in during transition */}
-          {((response === '[PRAYER_HANDS]' && showResponse) || showTriangleAfterDelay) && (
-            <div className={`response ${showTriangleAfterDelay ? 'fade-in-slow' : 'fade-in'}`} key={`triangle-${responseKey}`}>
+          {((response === '[PRAYER_HANDS]' && showResponse) || showTriangleAfterDelay || isTriangleFadingOut) && (
+            <div className={`response ${showTriangleAfterDelay ? 'fade-in-slow' : 'fade-in'} ${isTriangleFadingOut ? 'fade-out-quick' : ''}`} key={`triangle-${responseKey}`}>
               <RotatingTriangle />
             </div>
           )}
