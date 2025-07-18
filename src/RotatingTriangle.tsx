@@ -172,8 +172,10 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     if (isDragging) {
       setIsDragging(false)
-      // Animate back to center
-      setDragPosition({ x: 0, y: 0 })
+      // Small delay to ensure transition is applied
+      requestAnimationFrame(() => {
+        setDragPosition({ x: 0, y: 0 })
+      })
       triggerHaptic(10) // Small haptic on release
     }
   }
@@ -185,8 +187,10 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     if (isDragging) {
       setIsDragging(false)
-      // Animate back to center
-      setDragPosition({ x: 0, y: 0 })
+      // Small delay to ensure transition is applied
+      requestAnimationFrame(() => {
+        setDragPosition({ x: 0, y: 0 })
+      })
       triggerHaptic(10) // Small haptic on release
     } else {
       // It was a tap, not a drag
@@ -245,7 +249,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
             translate(${dragPosition.x}px, ${dragPosition.y}px) 
             scale(${isHovered && !isDragging ? 1.1 : 1})
           `,
-          transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+          transition: isDragging ? 'none' : 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
           cursor: isDragging ? 'grabbing' : 'pointer'
         }}
       >
