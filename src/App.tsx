@@ -376,10 +376,6 @@ function App() {
               {response === '[PRAYER_HANDS]' ? (
                 <RotatingTriangle />
               ) : (
-                <div className="response-with-triangle">
-                  <div className="triangle-above">
-                    <RotatingTriangle size={24} />
-                  </div>
                 <p>
                   {(() => {
                     let charIndex = 0
@@ -451,7 +447,6 @@ function App() {
                     ))
                   })()}
                 </p>
-                </div>
               )}
             </div>
           )}
