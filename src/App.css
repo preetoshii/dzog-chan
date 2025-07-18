@@ -156,8 +156,14 @@
   visibility: visible;
 }
 
-.response.fade-out {
-  animation: scaleAndFadeOut 8s ease-out forwards;
+.response.fade-out-quick {
+  animation: scaleAndFadeOutQuick 1.5s ease-out forwards;
+  visibility: visible;
+  opacity: 1;
+}
+
+.response.fade-out-slow {
+  animation: scaleAndFadeOutSlow 8s ease-out forwards;
   visibility: visible;
   opacity: 1;
 }
@@ -186,7 +192,22 @@
   }
 }
 
-@keyframes scaleAndFadeOut {
+@keyframes scaleAndFadeOutQuick {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  6.67% { /* 0.1s of 1.5s total */
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+@keyframes scaleAndFadeOutSlow {
   0% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);

@@ -28,6 +28,7 @@ function App() {
   const [isFadingOut, setIsFadingOut] = useState(false)
   const [lastResponseTime, setLastResponseTime] = useState<number>(Date.now())
   const [showTriangleAfterDelay, setShowTriangleAfterDelay] = useState(false)
+  const [fadeOutType, setFadeOutType] = useState<'quick' | 'slow'>('quick')
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -77,8 +78,9 @@ function App() {
     
     // If there's an existing response, fade it out first
     if (response && showResponse) {
+      setFadeOutType('quick')
       setIsFadingOut(true)
-      // Wait for fade out animation (1.5s as defined in CSS)
+      // Wait for fade out animation (1.5s for quick fade)
       await new Promise(resolve => setTimeout(resolve, 1500))
       setIsFadingOut(false)
       setShowResponse(false)
@@ -346,6 +348,7 @@ function App() {
     // Only start timer if we have text response showing (not triangle)
     if (showResponse && response && response !== '[PRAYER_HANDS]') {
       fadeToTriangleTimerRef.current = setTimeout(() => {
+        setFadeOutType('slow')
         setIsFadingOut(true)
         // Show triangle to fade in while text fades out
         setShowTriangleAfterDelay(true)
@@ -404,7 +407,7 @@ function App() {
         <div className="response-container">
           {/* Show text that might be fading out */}
           {response && response !== '[PRAYER_HANDS]' && (showResponse || isFadingOut) && (
-            <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? 'fade-out' : ''}`} key={`text-${responseKey}`}>
+            <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? `fade-out-${fadeOutType}` : ''}`} key={`text-${responseKey}`}>
               <p>
                 {(() => {
                   let charIndex = 0
