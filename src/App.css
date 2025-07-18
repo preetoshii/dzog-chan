@@ -31,23 +31,47 @@ button, input, textarea {
 
 /* Start button */
 .start-button {
-  position: absolute;
-  top: 50%;
+  position: fixed;
+  bottom: 5rem;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background: none;
-  border: none;
+  transform: translateX(-50%);
+  padding: 1rem 2rem;
+  border-radius: 2rem;
+  border: 2px solid;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 2rem;
+  background-color: transparent;
   opacity: 0;
   animation: fadeIn 2s ease-in-out forwards;
   animation-delay: 0.5s;
   -webkit-tap-highlight-color: transparent;
+  transition: all 0.3s ease;
+  font-weight: 300;
+  outline: none;
 }
 
-.start-button:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  transition: transform 0.3s ease;
+.dark .start-button {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.light .start-button {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.dark .start-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateX(-50%) scale(1.05);
+}
+
+.light .start-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%) scale(1.05);
 }
 
 .container {

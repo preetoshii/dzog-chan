@@ -424,7 +424,7 @@ function App() {
           className="start-button"
           aria-label="Begin"
         >
-          <RotatingTriangle size={32} />
+          Knock Knock
         </button>
       )}
       {hasStarted && (
