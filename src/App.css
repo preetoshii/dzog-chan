@@ -138,7 +138,7 @@
 }
 
 .response.fade-out {
-  animation: fadeOut 1.5s ease-out forwards;
+  animation: scaleAndFadeOut 1.5s ease-out forwards;
   visibility: visible;
   opacity: 1;
 }
@@ -164,6 +164,21 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes scaleAndFadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  6.67% { /* 0.1s of 1.5s total */
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
   }
 }
 
