@@ -14,12 +14,12 @@
     transform: rotate(0deg);
   }
   40% {
-    transform: rotate(360deg);
+    transform: rotate(180deg);
   }
   60% {
-    transform: rotate(360deg);
+    transform: rotate(180deg);
   }
   100% {
-    transform: rotate(720deg);
+    transform: rotate(360deg);
   }
 }
