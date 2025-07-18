@@ -24,6 +24,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [initialDragOffset, setInitialDragOffset] = useState({ x: 0, y: 0 })
   const dragTimeoutRef = useRef<number | null>(null)
+  const [justDragged, setJustDragged] = useState(false)
   
   // Play sounds when poked
   const playPokedSounds = async () => {
@@ -69,7 +70,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   
   const handleClick = () => {
     // Only trigger click if we didn't just drag
-    if (!isDragging) {
+    if (!isDragging && !justDragged) {
       if (onClick) {
         onClick()
       }
@@ -172,10 +173,14 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     if (isDragging) {
       setIsDragging(false)
-      // Small delay to ensure transition is applied
-      requestAnimationFrame(() => {
+      setJustDragged(true)
+      // Reset justDragged flag after a short delay
+      setTimeout(() => setJustDragged(false), 100)
+      // Use setTimeout instead of requestAnimationFrame to ensure 
+      // the transition property is applied before position changes
+      setTimeout(() => {
         setDragPosition({ x: 0, y: 0 })
-      })
+      }, 0)
       triggerHaptic(10) // Small haptic on release
     }
   }
@@ -187,10 +192,14 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     if (isDragging) {
       setIsDragging(false)
-      // Small delay to ensure transition is applied
-      requestAnimationFrame(() => {
+      setJustDragged(true)
+      // Reset justDragged flag after a short delay
+      setTimeout(() => setJustDragged(false), 100)
+      // Use setTimeout instead of requestAnimationFrame to ensure 
+      // the transition property is applied before position changes
+      setTimeout(() => {
         setDragPosition({ x: 0, y: 0 })
-      })
+      }, 0)
       triggerHaptic(10) // Small haptic on release
     } else {
       // It was a tap, not a drag
