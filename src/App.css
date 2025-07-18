@@ -41,22 +41,40 @@
 
 .dark .dark-mode-toggle {
   background-color: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.dark .dark-mode-toggle.show {
+  opacity: 1;
   color: rgba(255, 255, 255, 0.7);
 }
 
-.dark .dark-mode-toggle:hover {
+.dark .dark-mode-toggle:hover,
+.dark .dark-mode-toggle.show:hover {
   background-color: rgba(255, 255, 255, 0.25);
   color: #fff;
+  opacity: 1;
 }
 
 .light .dark-mode-toggle {
   background-color: rgba(0, 0, 0, 0);
+  color: rgba(0, 0, 0, 0.5);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.light .dark-mode-toggle.show {
+  opacity: 1;
   color: rgba(0, 0, 0, 0.6);
 }
 
-.light .dark-mode-toggle:hover {
+.light .dark-mode-toggle:hover,
+.light .dark-mode-toggle.show:hover {
   background-color: rgba(0, 0, 0, 0.1);
   color: #000;
+  opacity: 1;
 }
 
 .dark-mode-toggle svg {
@@ -82,22 +100,40 @@
 
 .dark .mute-toggle {
   background-color: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.dark .mute-toggle.show {
+  opacity: 1;
   color: rgba(255, 255, 255, 0.7);
 }
 
-.dark .mute-toggle:hover {
+.dark .mute-toggle:hover,
+.dark .mute-toggle.show:hover {
   background-color: rgba(255, 255, 255, 0.25);
   color: #fff;
+  opacity: 1;
 }
 
 .light .mute-toggle {
   background-color: rgba(0, 0, 0, 0);
+  color: rgba(0, 0, 0, 0.5);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.light .mute-toggle.show {
+  opacity: 1;
   color: rgba(0, 0, 0, 0.6);
 }
 
-.light .mute-toggle:hover {
+.light .mute-toggle:hover,
+.light .mute-toggle.show:hover {
   background-color: rgba(0, 0, 0, 0.1);
   color: #000;
+  opacity: 1;
 }
 
 .mute-toggle svg {

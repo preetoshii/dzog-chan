@@ -30,6 +30,7 @@ function App() {
   const [showTriangleAfterDelay, setShowTriangleAfterDelay] = useState(false)
   const [fadeOutType, setFadeOutType] = useState<'quick' | 'slow'>('quick')
   const [isTriangleFadingOut, setIsTriangleFadingOut] = useState(false)
+  const [showButtons, setShowButtons] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -378,11 +379,26 @@ function App() {
     }
   }, [showResponse, response])
 
+  // Handle mouse movement for button visibility
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const threshold = window.innerHeight * 0.25 // Top 25% of screen
+      setShowButtons(e.clientY < threshold)
+    }
+
+    // Add mouse move listener
+    window.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [])
+
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
       <button
         onClick={() => setIsDark(!isDark)}
-        className="dark-mode-toggle"
+        className={`dark-mode-toggle ${showButtons ? 'show' : ''}`}
         aria-label="Toggle dark mode"
       >
         {isDark ? (
@@ -398,7 +414,7 @@ function App() {
 
       <button
         onClick={() => setIsMuted(!isMuted)}
-        className="mute-toggle"
+        className={`mute-toggle ${showButtons ? 'show' : ''}`}
         aria-label="Toggle mute"
       >
         {isMuted ? (
