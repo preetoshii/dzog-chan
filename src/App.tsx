@@ -387,33 +387,53 @@ function App() {
                     let charIndex = 0
                     return response.split('. ').map((sentence, sentenceIndex, array) => (
                       <span key={sentenceIndex}>
-                        {sentence.split(' ').map((word, wordIndex) => (
-                          <span key={`word-${wordIndex}`}>
-                            <span className="word-group">
-                              {word.split('').map((char) => {
-                                const currentCharIndex = charIndex++
-                                const delay = currentCharIndex * WAVE_DELAY
-                                
-                                return (
-                                  <span
-                                    key={currentCharIndex}
-                                    className="wave-char"
-                                    style={{
-                                      animationDelay: `${delay}s`,
-                                      animationDuration: `${WAVE_SPEED}s`,
-                                      '--wave-height': `${WAVE_HEIGHT}px`
-                                    } as React.CSSProperties}
-                                  >
-                                    {char}
-                                  </span>
-                                )
-                              })}
-                            </span>
-                            {wordIndex < sentence.split(' ').length - 1 && (
-                              <span style={{ display: 'inline' }}>&nbsp;</span>
-                            )}
-                          </span>
-                        ))}
+                        {(() => {
+                          // Parse sentence for quoted text
+                          const parts = sentence.split(/("[^"]*")/g).filter(part => part)
+                          
+                          return parts.map((part, partIndex) => {
+                            const isQuoted = part.startsWith('"') && part.endsWith('"')
+                            const textToRender = isQuoted ? part.slice(1, -1) : part
+                            
+                            return textToRender.split(' ').map((word, wordIndex) => (
+                              <span key={`part-${partIndex}-word-${wordIndex}`}>
+                                {/* Add extra space before quoted text */}
+                                {isQuoted && wordIndex === 0 && partIndex > 0 && (
+                                  <span style={{ display: 'inline-block', width: '0.075em' }}></span>
+                                )}
+                                <span className={`word-group ${isQuoted ? 'quoted-text' : ''}`}>
+                                  {word.split('').map((char) => {
+                                    const currentCharIndex = charIndex++
+                                    const delay = currentCharIndex * WAVE_DELAY
+                                    
+                                    return (
+                                      <span
+                                        key={currentCharIndex}
+                                        className="wave-char"
+                                        style={{
+                                          animationDelay: `${delay}s`,
+                                          animationDuration: `${WAVE_SPEED}s`,
+                                          '--wave-height': `${WAVE_HEIGHT}px`,
+                                          fontStyle: isQuoted ? 'italic' : 'normal',
+                                          color: isQuoted ? '#A6C8FD' : 'inherit'
+                                        } as React.CSSProperties}
+                                      >
+                                        {char}
+                                      </span>
+                                    )
+                                  })}
+                                </span>
+                                {wordIndex < textToRender.split(' ').length - 1 && (
+                                  <span style={{ display: 'inline' }}>&nbsp;</span>
+                                )}
+                                {/* Add extra space after quoted text */}
+                                {isQuoted && wordIndex === textToRender.split(' ').length - 1 && partIndex < parts.length - 1 && (
+                                  <span style={{ display: 'inline-block', width: '0.15em' }}></span>
+                                )}
+                              </span>
+                            ))
+                          })
+                        })()}
                         {sentenceIndex < array.length - 1 && (
                           <>
                             <span
