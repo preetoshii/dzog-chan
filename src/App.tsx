@@ -55,6 +55,8 @@ function App() {
     setResponse(initialGuidance)
     setShowResponse(false)
     setResponseKey(1)
+    // Add initial guidance to conversation history
+    setConversationHistory([{ role: 'assistant', content: initialGuidance }])
     // Small delay before fading in for better effect
     setTimeout(() => {
       setShowResponse(true)
