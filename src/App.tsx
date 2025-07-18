@@ -5,6 +5,7 @@ import { getRandomGuidance } from './initial-guidance'
 import { generateSpeech, playAudio } from './elevenlabs-config'
 import RotatingTriangle from './RotatingTriangle'
 import { triggerHaptic } from './utils/haptic'
+import { playSelectSound, playClickSound } from './utils/sounds'
 import './App.css'
 
 const openai = new OpenAI({
@@ -85,6 +86,7 @@ function App() {
   // Handle starting the experience
   const handleStart = async () => {
     triggerHaptic(10)
+    playSelectSound()
     setIsStarting(true)
     // Wait for animation to complete
     setTimeout(() => {
@@ -389,6 +391,7 @@ function App() {
 
   const handleVoiceButtonClick = () => {
     triggerHaptic(10)
+    playClickSound()
     if (isMobile && voiceMode && !isListening && !isProcessing) {
       // On mobile in voice mode, treat as push-to-talk
       startListening()
@@ -543,6 +546,7 @@ function App() {
         <button
           onClick={() => {
             triggerHaptic(10)
+            playClickSound()
             setIsDark(!isDark)
           }}
           className={`dark-mode-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
@@ -564,6 +568,7 @@ function App() {
         <button
         onClick={() => {
           triggerHaptic(10)
+          playClickSound()
           setIsMuted(!isMuted)
         }}
         className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
@@ -593,6 +598,7 @@ function App() {
               onClick={async () => {
                 // Fade out text and show triangle
                 triggerHaptic(10)
+                playSelectSound()
                 setFadeOutType('quick')
                 setIsFadingOut(true)
                 await new Promise(resolve => setTimeout(resolve, 1500))
@@ -704,6 +710,11 @@ function App() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onFocus={() => {
+              if (!voiceMode) {
+                playClickSound()
+              }
+            }}
             placeholder={input || voiceMode ? "" : "respond"}
             className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
             style={voiceMode && !isProcessing ? { 
