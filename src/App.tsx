@@ -464,14 +464,21 @@ function App() {
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
       {!hasStarted && (
-        <button 
-          onClick={handleStart}
-          className={`start-button ${isStarting ? 'starting' : ''}`}
-          aria-label="Begin"
-          disabled={isStarting}
-        >
-          Knock Knock
-        </button>
+        <>
+          <div className="response-container">
+            <div className="response fade-in">
+              <RotatingTriangle isDark={isDark} />
+            </div>
+          </div>
+          <button 
+            onClick={handleStart}
+            className={`start-button ${isStarting ? 'starting' : ''}`}
+            aria-label="Begin"
+            disabled={isStarting}
+          >
+            Knock Knock
+          </button>
+        </>
       )}
       {hasStarted && (
         <button
