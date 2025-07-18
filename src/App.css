@@ -35,8 +35,8 @@
 }
 
 .dark .dark-mode-toggle {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .dark .dark-mode-toggle:hover {
@@ -45,8 +45,8 @@
 }
 
 .light .dark-mode-toggle {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .light .dark-mode-toggle:hover {
@@ -76,8 +76,8 @@
 }
 
 .dark .mute-toggle {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .dark .mute-toggle:hover {
@@ -86,8 +86,8 @@
 }
 
 .light .mute-toggle {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .light .mute-toggle:hover {
@@ -188,6 +188,12 @@
   animation: wave 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Keep words together */
+.word-group {
+  display: inline-block;
+  white-space: nowrap;
+}
+
 @keyframes wave {
   0%, 100% {
     transform: translateY(0);
@@ -275,10 +281,10 @@
 
 .dark .input-field::placeholder {
   color: rgba(255, 255, 255, 0.4);
+  transition: opacity 0.4s ease-in-out, color 0.4s ease-in-out;
 }
 
 .dark .input-field:focus {
-  background-color: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
@@ -291,10 +297,10 @@
 
 .light .input-field::placeholder {
   color: rgba(0, 0, 0, 0.4);
+  transition: opacity 0.4s ease-in-out, color 0.4s ease-in-out;
 }
 
 .light .input-field:focus {
-  background-color: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
 }
@@ -302,6 +308,24 @@
 .input-field.fading {
   color: transparent !important;
   transition: color 0.3s ease-out;
+}
+
+/* Fade out placeholder on focus */
+.dark .input-field:focus::placeholder {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.light .input-field:focus::placeholder {
+  color: rgba(0, 0, 0, 0.15);
+}
+
+/* Hide placeholder when typing */
+.dark .input-field:not(:placeholder-shown)::placeholder {
+  color: rgba(255, 255, 255, 0);
+}
+
+.light .input-field:not(:placeholder-shown)::placeholder {
+  color: rgba(0, 0, 0, 0);
 }
 
 @keyframes fadeOutText {

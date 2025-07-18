@@ -386,49 +386,51 @@ function App() {
                   {(() => {
                     let charIndex = 0
                     return response.split('. ').map((sentence, sentenceIndex, array) => (
-                  <span key={sentenceIndex}>
-                    {sentence.split('').map((char) => {
-                      const currentCharIndex = charIndex++
-                      
-                      // Handle spaces
-                      if (char === ' ') {
-                        return <span key={currentCharIndex} style={{ display: 'inline' }}>&nbsp;</span>
-                      }
-                      
-                      // Calculate animation delay for each character
-                      const delay = currentCharIndex * WAVE_DELAY
-                      
-                      return (
-                        <span
-                          key={currentCharIndex}
-                          className="wave-char"
-                          style={{
-                            animationDelay: `${delay}s`,
-                            animationDuration: `${WAVE_SPEED}s`,
-                            '--wave-height': `${WAVE_HEIGHT}px`
-                          } as React.CSSProperties}
-                        >
-                          {char}
-                        </span>
-                      )
-                    })}
-                    {sentenceIndex < array.length - 1 && (
-                      <>
-                        <span
-                          className="wave-char"
-                          style={{
-                            animationDelay: `${charIndex++ * WAVE_DELAY}s`,
-                            animationDuration: `${WAVE_SPEED}s`,
-                            '--wave-height': `${WAVE_HEIGHT}px`
-                          } as React.CSSProperties}
-                        >
-                          .
-                        </span>
-                        <br />
-                      </>
-                    )}
-                  </span>
-                ))
+                      <span key={sentenceIndex}>
+                        {sentence.split(' ').map((word, wordIndex) => (
+                          <span key={`word-${wordIndex}`}>
+                            <span className="word-group">
+                              {word.split('').map((char) => {
+                                const currentCharIndex = charIndex++
+                                const delay = currentCharIndex * WAVE_DELAY
+                                
+                                return (
+                                  <span
+                                    key={currentCharIndex}
+                                    className="wave-char"
+                                    style={{
+                                      animationDelay: `${delay}s`,
+                                      animationDuration: `${WAVE_SPEED}s`,
+                                      '--wave-height': `${WAVE_HEIGHT}px`
+                                    } as React.CSSProperties}
+                                  >
+                                    {char}
+                                  </span>
+                                )
+                              })}
+                            </span>
+                            {wordIndex < sentence.split(' ').length - 1 && (
+                              <span style={{ display: 'inline' }}>&nbsp;</span>
+                            )}
+                          </span>
+                        ))}
+                        {sentenceIndex < array.length - 1 && (
+                          <>
+                            <span
+                              className="wave-char"
+                              style={{
+                                animationDelay: `${charIndex++ * WAVE_DELAY}s`,
+                                animationDuration: `${WAVE_SPEED}s`,
+                                '--wave-height': `${WAVE_HEIGHT}px`
+                              } as React.CSSProperties}
+                            >
+                              .
+                            </span>
+                            <br />
+                          </>
+                        )}
+                      </span>
+                    ))
                   })()}
                 </p>
               )}
@@ -446,7 +448,7 @@ function App() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder=""
+            placeholder="Respond honestly"
             className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
