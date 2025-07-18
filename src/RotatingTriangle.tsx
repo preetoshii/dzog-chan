@@ -92,9 +92,6 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
-    const rect = e.currentTarget.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
     
     setDragStart({ x: e.clientX, y: e.clientY })
     setInitialDragOffset({ 
@@ -107,14 +104,20 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
     }, 150)
+    
+    // Add temporary listeners for mouse up to cancel drag start
+    const cancelDragStart = () => {
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current)
+      }
+      window.removeEventListener('mouseup', cancelDragStart)
+    }
+    window.addEventListener('mouseup', cancelDragStart)
   }
   
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault()
     const touch = e.touches[0]
-    const rect = e.currentTarget.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
     
     setDragStart({ x: touch.clientX, y: touch.clientY })
     setInitialDragOffset({ 
@@ -127,9 +130,18 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
     }, 150)
+    
+    // Add temporary listeners for touch end to cancel drag start
+    const cancelDragStart = () => {
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current)
+      }
+      window.removeEventListener('touchend', cancelDragStart)
+    }
+    window.addEventListener('touchend', cancelDragStart)
   }
   
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleDragMouseMove = (e: MouseEvent) => {
     if (isDragging) {
       const deltaX = e.clientX - dragStart.x
       const deltaY = e.clientY - dragStart.y
@@ -206,13 +218,13 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   // Global event listeners for drag
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mousemove', handleDragMouseMove)
       window.addEventListener('mouseup', handleMouseUp)
       window.addEventListener('touchmove', handleTouchMove, { passive: false })
       window.addEventListener('touchend', handleTouchEnd)
       
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mousemove', handleDragMouseMove)
         window.removeEventListener('mouseup', handleMouseUp)
         window.removeEventListener('touchmove', handleTouchMove)
         window.removeEventListener('touchend', handleTouchEnd)
