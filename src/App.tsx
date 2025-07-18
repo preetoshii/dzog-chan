@@ -788,6 +788,9 @@ function App() {
               boxShadow: `0 0 ${audioLevel * 30}px rgba(59, 130, 255, ${audioLevel * 0.5})`
             } : {}}
             disabled={voiceMode}
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
           />
           <button
             type="button"
