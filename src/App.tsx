@@ -58,21 +58,40 @@ function App() {
 
   // Show initial guidance on component mount
   useEffect(() => {
-    const initialGuidance = getRandomGuidance()
-    // Set response but don't show it yet
-    setResponse(initialGuidance)
-    setShowResponse(false)
-    setResponseKey(1)
-    // Add initial guidance to conversation history
-    setConversationHistory([{ role: 'assistant', content: initialGuidance }])
-    // Small delay before fading in for better effect
-    setTimeout(() => {
-      setShowResponse(true)
-      // Show UI elements 2 seconds after text starts fading in
-      setTimeout(() => {
-        setShowUI(true)
-      }, 2000)
-    }, 500)
+    const playInitialGuidance = async () => {
+      const initialGuidance = getRandomGuidance()
+      // Set response but don't show it yet
+      setResponse(initialGuidance)
+      setShowResponse(false)
+      setResponseKey(1)
+      // Add initial guidance to conversation history
+      setConversationHistory([{ role: 'assistant', content: initialGuidance }])
+      
+      // Small delay before fading in for better effect
+      setTimeout(async () => {
+        setShowResponse(true)
+        setLastResponseTime(Date.now())
+        
+        // Play audio for initial guidance if not muted
+        if (!isMuted) {
+          try {
+            const audioBuffer = await generateSpeech(initialGuidance)
+            if (audioBuffer) {
+              await playAudio(audioBuffer)
+            }
+          } catch (error) {
+            console.error('Error playing initial guidance:', error)
+          }
+        }
+        
+        // Show UI elements 2 seconds after text starts fading in
+        setTimeout(() => {
+          setShowUI(true)
+        }, 2000)
+      }, 500)
+    }
+    
+    playInitialGuidance()
   }, [])
 
   const processInput = useCallback(async (inputText: string) => {
