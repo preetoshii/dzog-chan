@@ -1,12 +1,16 @@
 import React from 'react'
 import './RotatingTriangle.css'
 
-const RotatingTriangle: React.FC = () => {
+interface RotatingTriangleProps {
+  size?: number
+}
+
+const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 48 }) => {
   return (
     <div className="rotating-triangle-container">
       <svg 
-        width="48" 
-        height="48" 
+        width={size} 
+        height={size} 
         viewBox="0 0 48 48" 
         fill="none" 
         xmlns="http://www.w3.org/2000/svg"
