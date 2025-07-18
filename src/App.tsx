@@ -32,6 +32,7 @@ function App() {
   const [isTriangleFadingOut, setIsTriangleFadingOut] = useState(false)
   const [showButtons, setShowButtons] = useState(false)
   const [showUI, setShowUI] = useState(false)
+  const [hasStarted, setHasStarted] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -56,43 +57,40 @@ function App() {
     console.log('==============================')
   }, [DZOGCHEN_SYSTEM_PROMPT])
 
-  // Show initial guidance on component mount
-  useEffect(() => {
-    const playInitialGuidance = async () => {
-      const initialGuidance = getRandomGuidance()
-      // Set response but don't show it yet
-      setResponse(initialGuidance)
-      setShowResponse(false)
-      setResponseKey(1)
-      // Add initial guidance to conversation history
-      setConversationHistory([{ role: 'assistant', content: initialGuidance }])
-      
-      // Small delay before fading in for better effect
-      setTimeout(async () => {
-        setShowResponse(true)
-        setLastResponseTime(Date.now())
-        
-        // Play audio for initial guidance if not muted
-        if (!isMuted) {
-          try {
-            const audioBuffer = await generateSpeech(initialGuidance)
-            if (audioBuffer) {
-              await playAudio(audioBuffer)
-            }
-          } catch (error) {
-            console.error('Error playing initial guidance:', error)
-          }
-        }
-        
-        // Show UI elements 2 seconds after text starts fading in
-        setTimeout(() => {
-          setShowUI(true)
-        }, 2000)
-      }, 500)
-    }
+  // Handle starting the experience
+  const handleStart = async () => {
+    setHasStarted(true)
+    const initialGuidance = getRandomGuidance()
+    // Set response but don't show it yet
+    setResponse(initialGuidance)
+    setShowResponse(false)
+    setResponseKey(1)
+    // Add initial guidance to conversation history
+    setConversationHistory([{ role: 'assistant', content: initialGuidance }])
     
-    playInitialGuidance()
-  }, [])
+    // Small delay before fading in for better effect
+    setTimeout(async () => {
+      setShowResponse(true)
+      setLastResponseTime(Date.now())
+      
+      // Play audio for initial guidance if not muted
+      if (!isMuted) {
+        try {
+          const audioBuffer = await generateSpeech(initialGuidance)
+          if (audioBuffer) {
+            await playAudio(audioBuffer)
+          }
+        } catch (error) {
+          console.error('Error playing initial guidance:', error)
+        }
+      }
+      
+      // Show UI elements 2 seconds after text starts fading in
+      setTimeout(() => {
+        setShowUI(true)
+      }, 2000)
+    }, 500)
+  }
 
   const processInput = useCallback(async (inputText: string) => {
     setInputFading(true)
@@ -420,11 +418,21 @@ function App() {
 
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
-      <button
-        onClick={() => setIsDark(!isDark)}
-        className={`dark-mode-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
-        aria-label="Toggle dark mode"
-      >
+      {!hasStarted && (
+        <button 
+          onClick={handleStart}
+          className="start-button"
+          aria-label="Begin"
+        >
+          <RotatingTriangle size={32} />
+        </button>
+      )}
+      {hasStarted && (
+        <button
+          onClick={() => setIsDark(!isDark)}
+          className={`dark-mode-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
+          aria-label="Toggle dark mode"
+        >
         {isDark ? (
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -434,9 +442,11 @@ function App() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
           </svg>
         )}
-      </button>
+        </button>
+      )}
 
-      <button
+      {hasStarted && (
+        <button
         onClick={() => setIsMuted(!isMuted)}
         className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
         aria-label="Toggle mute"
@@ -451,9 +461,11 @@ function App() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
           </svg>
         )}
-      </button>
+        </button>
+      )}
 
-      <div className="content">
+      {hasStarted && (
+        <div className="content">
         <div className="response-container">
           {/* Show text that might be fading out */}
           {response && response !== '[PRAYER_HANDS]' && (showResponse || isFadingOut) && (
@@ -538,9 +550,11 @@ function App() {
             </div>
           )}
         </div>
-      </div>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className={`input-form ${voiceMode ? 'voice-mode' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}>
+      {hasStarted && (
+        <form onSubmit={handleSubmit} className={`input-form ${voiceMode ? 'voice-mode' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}>
         <div 
           className={`input-wrapper ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
           style={voiceMode && !isProcessing ? { transform: `scale(${1 + audioLevel * 0.6})` } : {}}
@@ -570,7 +584,8 @@ function App() {
             </svg>
           </button>
         </div>
-      </form>
+        </form>
+      )}
     </div>
   )
 }

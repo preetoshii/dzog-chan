@@ -29,6 +29,27 @@ button, input, textarea {
   }
 }
 
+/* Start button */
+.start-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2rem;
+  opacity: 0;
+  animation: fadeIn 2s ease-in-out forwards;
+  animation-delay: 0.5s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.start-button:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  transition: transform 0.3s ease;
+}
+
 .container {
   min-height: 100vh;
   display: flex;
