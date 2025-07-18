@@ -8,7 +8,7 @@
 .rotating-triangle {
   animation: rotateWithPause 10s ease-in-out infinite;
   opacity: 0.8;
-  transform-origin: 72px 66px; /* Centroid of triangle */
+  transform-origin: center center; /* Use center keyword for reliability */
 }
 
 @keyframes rotateWithPause {

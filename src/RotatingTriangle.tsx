@@ -18,7 +18,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         className="rotating-triangle"
       >
         <path 
-          d="M72 24 L120 108 L24 108 Z" 
+          d="M72 16 L120 100 L24 100 Z" 
           stroke="currentColor" 
           strokeWidth="2" 
           strokeLinejoin="round"
@@ -35,7 +35,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         className="face-svg"
         style={{ 
           position: 'absolute', 
-          top: '50%', 
+          top: '47%', 
           left: '50%', 
           transform: 'translate(-50%, -50%)',
           pointerEvents: 'none'
