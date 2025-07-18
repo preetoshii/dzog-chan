@@ -347,15 +347,14 @@ function App() {
     if (showResponse && response && response !== '[PRAYER_HANDS]') {
       fadeToTriangleTimerRef.current = setTimeout(() => {
         setIsFadingOut(true)
-        // After fade out completes, show triangle
+        // Show triangle immediately to fade in while text fades out
+        setResponse('[PRAYER_HANDS]')
+        setShowTriangleAfterDelay(true)
+        setResponseKey(prev => prev + 1)
+        // Clean up after fade completes
         setTimeout(() => {
           setIsFadingOut(false)
-          setShowResponse(false)
-          setResponse('[PRAYER_HANDS]')
-          setShowTriangleAfterDelay(true)
-          setShowResponse(true)
-          setResponseKey(prev => prev + 1)
-        }, 1500) // Match fade out duration
+        }, 8000) // Match fade out duration
       }, 20000) // 20 seconds
     }
 
@@ -403,15 +402,13 @@ function App() {
 
       <div className="content">
         <div className="response-container">
-          {(response || isFadingOut) && (
-            <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? 'fade-out' : ''}`} key={responseKey}>
-              {response === '[PRAYER_HANDS]' ? (
-                <RotatingTriangle />
-              ) : (
-                <p>
-                  {(() => {
-                    let charIndex = 0
-                    return response.split('. ').map((sentence, sentenceIndex, array) => (
+          {/* Show text that might be fading out */}
+          {response && response !== '[PRAYER_HANDS]' && (showResponse || isFadingOut) && (
+            <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? 'fade-out' : ''}`} key={`text-${responseKey}`}>
+              <p>
+                {(() => {
+                  let charIndex = 0
+                  return response.split('. ').map((sentence, sentenceIndex, array) => (
                       <span key={sentenceIndex}>
                         {(() => {
                           // Parse sentence for quoted text
@@ -479,7 +476,12 @@ function App() {
                     ))
                   })()}
                 </p>
-              )}
+            </div>
+          )}
+          {/* Show triangle - either standalone or fading in during transition */}
+          {((response === '[PRAYER_HANDS]' && showResponse) || showTriangleAfterDelay) && (
+            <div className={`response ${showTriangleAfterDelay ? 'fade-in-slow' : 'fade-in'}`} key={`triangle-${responseKey}`}>
+              <RotatingTriangle />
             </div>
           )}
         </div>

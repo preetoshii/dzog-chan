@@ -123,6 +123,7 @@
   justify-content: center;
   max-width: 42rem;
   width: 100%;
+  position: relative;
 }
 
 .response {
@@ -135,6 +136,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
   /* Force consistent rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -145,8 +151,13 @@
   visibility: visible;
 }
 
+.response.fade-in-slow {
+  animation: fadeIn 8s ease-in-out forwards;
+  visibility: visible;
+}
+
 .response.fade-out {
-  animation: scaleAndFadeOut 1.5s ease-out forwards;
+  animation: scaleAndFadeOut 8s ease-out forwards;
   visibility: visible;
   opacity: 1;
 }
@@ -178,15 +189,11 @@
 @keyframes scaleAndFadeOut {
   0% {
     opacity: 1;
-    transform: scale(1);
-  }
-  6.67% { /* 0.1s of 1.5s total */
-    opacity: 1;
-    transform: scale(1.05);
+    transform: translate(-50%, -50%) scale(1);
   }
   100% {
     opacity: 0;
-    transform: scale(0.95);
+    transform: translate(-50%, -50%) scale(0.95);
   }
 }
 
