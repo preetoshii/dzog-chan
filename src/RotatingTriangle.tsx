@@ -14,6 +14,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [isHovered, setIsHovered] = useState(false)
   const [isPoked, setIsPoked] = useState(false)
   const [currentPokedAudio, setCurrentPokedAudio] = useState<HTMLAudioElement | null>(null)
+  const [recentSounds, setRecentSounds] = useState<string[]>([]) // Track last 3 played sounds
   
   // Play sounds when poked
   const playPokedSounds = async () => {
@@ -30,10 +31,25 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     // Small delay to ensure both sounds can start properly
     setTimeout(() => {
-      // Play a random poked sound from the list
+      // Play a random poked sound from the list, avoiding recent ones
       if (POKED_SOUNDS.length > 0) {
-        const randomIndex = Math.floor(Math.random() * POKED_SOUNDS.length)
-        const randomSound = POKED_SOUNDS[randomIndex]
+        // Filter out sounds that were played in the last 3 times
+        const availableSounds = POKED_SOUNDS.filter(sound => !recentSounds.includes(sound))
+        
+        // If all sounds have been played recently (small sound library), allow all sounds again
+        const soundPool = availableSounds.length > 0 ? availableSounds : POKED_SOUNDS
+        
+        // Pick a random sound from the available pool
+        const randomIndex = Math.floor(Math.random() * soundPool.length)
+        const randomSound = soundPool[randomIndex]
+        
+        // Update recent sounds list (keep only last 3)
+        setRecentSounds(prev => {
+          const newRecent = [randomSound, ...prev].slice(0, 3)
+          return newRecent
+        })
+        
+        // Play the sound
         const pokedAudio = new Audio(`/sounds/poked/${randomSound}`)
         pokedAudio.volume = 0.8
         setCurrentPokedAudio(pokedAudio)
