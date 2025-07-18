@@ -145,11 +145,14 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
       
-      // Start playing drag sounds at random intervals
-      playDragSound() // Play first sound immediately
-      dragSoundIntervalRef.current = window.setInterval(() => {
-        playDragSound()
-      }, Math.random() * 3000 + 5000) // Random between 5-8 seconds
+      // Start playing drag sounds after a delay
+      dragSoundIntervalRef.current = window.setTimeout(() => {
+        playDragSound() // Play first sound after 3 seconds
+        // Then continue playing at random intervals
+        dragSoundIntervalRef.current = window.setInterval(() => {
+          playDragSound()
+        }, Math.random() * 3000 + 5000) // Random between 5-8 seconds
+      }, 3000) // Wait 3 seconds before first sound
     }, 150)
     
     // Add temporary listeners for mouse up to cancel drag start
@@ -177,11 +180,14 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
       
-      // Start playing drag sounds at random intervals
-      playDragSound() // Play first sound immediately
-      dragSoundIntervalRef.current = window.setInterval(() => {
-        playDragSound()
-      }, Math.random() * 3000 + 5000) // Random between 5-8 seconds
+      // Start playing drag sounds after a delay
+      dragSoundIntervalRef.current = window.setTimeout(() => {
+        playDragSound() // Play first sound after 3 seconds
+        // Then continue playing at random intervals
+        dragSoundIntervalRef.current = window.setInterval(() => {
+          playDragSound()
+        }, Math.random() * 3000 + 5000) // Random between 5-8 seconds
+      }, 3000) // Wait 3 seconds before first sound
     }, 150)
     
     // Add temporary listeners for touch end to cancel drag start
@@ -235,8 +241,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       }, 0)
       triggerHaptic(10) // Small haptic on release
       
-      // Stop drag sound interval
+      // Stop drag sound timer/interval
       if (dragSoundIntervalRef.current) {
+        clearTimeout(dragSoundIntervalRef.current) // Works for both timeout and interval
         clearInterval(dragSoundIntervalRef.current)
         dragSoundIntervalRef.current = null
       }
@@ -265,8 +272,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       }, 0)
       triggerHaptic(10) // Small haptic on release
       
-      // Stop drag sound interval
+      // Stop drag sound timer/interval
       if (dragSoundIntervalRef.current) {
+        clearTimeout(dragSoundIntervalRef.current) // Works for both timeout and interval
         clearInterval(dragSoundIntervalRef.current)
         dragSoundIntervalRef.current = null
       }
@@ -323,6 +331,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   useEffect(() => {
     return () => {
       if (dragSoundIntervalRef.current) {
+        clearTimeout(dragSoundIntervalRef.current)
         clearInterval(dragSoundIntervalRef.current)
       }
       if (currentDraggedAudio) {
