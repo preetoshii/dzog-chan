@@ -13,10 +13,13 @@
   0% {
     transform: rotate(0deg);
   }
-  50% {
+  40% {
+    transform: rotate(360deg);
+  }
+  60% {
     transform: rotate(360deg);
   }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(720deg);
   }
 }
