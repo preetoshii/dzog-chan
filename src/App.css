@@ -98,7 +98,8 @@ button, input, textarea {
 
 /* Triangle exit animation */
 .response.triangle-exit {
-  animation: triangleExit 1.5s ease-out forwards;
+  animation: triangleExit 1.5s ease-out forwards !important;
+  visibility: visible !important;
 }
 
 @keyframes triangleExit {
