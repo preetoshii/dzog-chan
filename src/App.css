@@ -553,13 +553,31 @@ html, body {
   color: rgba(0, 0, 0, 0.15);
 }
 
-/* Smooth placeholder text transition */
-.input-field::placeholder {
-  transition: opacity 0.5s ease-in-out;
+/* Placeholder word overlay - positioned after "respond " */
+.placeholder-word-overlay {
+  position: absolute;
+  left: 5.5rem; /* Position after "respond " */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 1rem;
 }
 
-.input-field.placeholder-fade::placeholder {
-  opacity: 0 !important;
+.dark .placeholder-word-overlay {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light .placeholder-word-overlay {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.placeholder-changing {
+  transition: opacity 0.5s ease-in-out;
+  display: inline-block;
+}
+
+.placeholder-changing.fade {
+  opacity: 0;
 }
 
 /* Hide placeholder when typing */

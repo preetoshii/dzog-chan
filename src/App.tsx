@@ -667,12 +667,19 @@ function App() {
           className={`input-wrapper ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
           style={voiceMode && !isProcessing ? { transform: `scale(${1 + audioLevel * 0.6})` } : {}}
         >
+          {!input && !voiceMode && (
+            <div className="placeholder-word-overlay">
+              <span className={`placeholder-changing ${!placeholderVisible ? 'fade' : ''}`}>
+                {placeholderWords[placeholderIndex]}
+              </span>
+            </div>
+          )}
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={input || voiceMode ? "" : `respond ${placeholderWords[placeholderIndex]}`}
-            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''} ${!placeholderVisible ? 'placeholder-fade' : ''}`}
+            placeholder={input || voiceMode ? "" : "respond"}
+            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
               borderColor: isDark 
