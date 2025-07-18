@@ -466,7 +466,7 @@ function App() {
       {!hasStarted && (
         <>
           <div className="response-container">
-            <div className="response fade-in">
+            <div className={`response fade-in ${isStarting ? 'triangle-exit' : ''}`}>
               <RotatingTriangle isDark={isDark} />
             </div>
           </div>

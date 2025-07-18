@@ -96,6 +96,22 @@ button, input, textarea {
   }
 }
 
+/* Triangle exit animation */
+.response.triangle-exit {
+  animation: triangleExit 1.5s ease-out forwards;
+}
+
+@keyframes triangleExit {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-100px) scale(0.3);
+  }
+}
+
 .container {
   min-height: 100vh;
   display: flex;
