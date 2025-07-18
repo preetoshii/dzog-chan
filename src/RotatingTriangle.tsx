@@ -23,6 +23,12 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [recentDragSounds, setRecentDragSounds] = useState<string[]>([]) // Track last 3 played drag sounds
   const dragSoundIntervalRef = useRef<number | null>(null)
   
+  // Speaking animation state
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [speakFrame, setSpeakFrame] = useState(0) // 0 = default face, 1 = speak face
+  const speakAnimationRef = useRef<number | null>(null)
+  const [wantToStopSpeaking, setWantToStopSpeaking] = useState(false)
+  
   // Drag state
   const [isDragging, setIsDragging] = useState(false)
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 })
@@ -30,6 +36,13 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [initialDragOffset, setInitialDragOffset] = useState({ x: 0, y: 0 })
   const dragTimeoutRef = useRef<number | null>(null)
   const [justDragged, setJustDragged] = useState(false)
+  
+  // Velocity tracking for whoosh sound
+  const lastPositionRef = useRef({ x: 0, y: 0 })
+  const lastVelocityRef = useRef({ x: 0, y: 0 })
+  const lastWhooshTimeRef = useRef(0)
+  const lastDirectionWhooshTimeRef = useRef(0)
+  const audioContextRef = useRef<AudioContext | null>(null)
   
   // Play sounds when poked
   const playPokedSounds = async () => {
@@ -70,9 +83,68 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         const pokedAudio = new Audio(`/sounds/poked/${randomSound}`)
         pokedAudio.volume = 0.8
         setCurrentPokedAudio(pokedAudio)
+        
+        // Set speaking state when audio starts
+        setIsSpeaking(true)
+        setWantToStopSpeaking(false)
+        
+        // Clear speaking state when audio ends
+        pokedAudio.addEventListener('ended', () => {
+          setWantToStopSpeaking(true)
+        })
+        
         pokedAudio.play().catch(err => console.log(`Poked sound ${randomSound} error:`, err))
       }
     }, 50) // 50ms delay
+  }
+  
+  // Play whoosh sound with pitch based on velocity
+  const playWhooshSound = async (velocity: number) => {
+    if (isMuted) return
+    
+    try {
+      // Initialize AudioContext if not already created
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+      }
+      
+      const audioContext = audioContextRef.current
+      
+      // Fetch and decode the audio file
+      const response = await fetch('/sounds/whip.wav')
+      const arrayBuffer = await response.arrayBuffer()
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+      
+      // Create audio source
+      const source = audioContext.createBufferSource()
+      source.buffer = audioBuffer
+      
+      // Calculate pitch/speed based on velocity
+      // Very slow movements = very slow playback (0.3 to 1.8 range)
+      const normalizedVelocity = Math.min(100, velocity) / 100 // 0 to 1
+      
+      // Use exponential curve for more dramatic slow-down at low velocities
+      const pitch = 0.3 + (Math.pow(normalizedVelocity, 0.7) * 1.5)
+      source.playbackRate.value = pitch
+      
+      // Calculate volume based on velocity
+      // Much quieter for slow movements, louder for fast
+      // Use exponential curve for dramatic volume reduction at low speeds
+      const volume = Math.min(1.0, Math.max(0.05, Math.pow(normalizedVelocity, 2) * 1.5))
+      
+      // Create gain node for volume control
+      const gainNode = audioContext.createGain()
+      gainNode.gain.value = volume
+      
+      // Connect nodes
+      source.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      
+      // Play the sound
+      source.start(0)
+    } catch (err) {
+      console.log('Whip sound error:', err)
+    }
   }
   
   // Play random drag sound
@@ -105,6 +177,16 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     const dragAudio = new Audio(`/sounds/dragged/${randomSound}`)
     dragAudio.volume = 0.6
     setCurrentDraggedAudio(dragAudio)
+    
+    // Set speaking state when audio starts
+    setIsSpeaking(true)
+    setWantToStopSpeaking(false)
+    
+    // Clear speaking state when audio ends
+    dragAudio.addEventListener('ended', () => {
+      setWantToStopSpeaking(true)
+    })
+    
     dragAudio.play().catch(err => console.log(`Drag sound ${randomSound} error:`, err))
   }
   
@@ -145,6 +227,17 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
       
+      // Initialize velocity tracking
+      lastPositionRef.current = { x: initialDragOffset.x, y: initialDragOffset.y }
+      lastVelocityRef.current = { x: 0, y: 0 }
+      
+      // Play pickup sound
+      if (!isMuted) {
+        const pickupAudio = new Audio('/sounds/pickup.wav')
+        pickupAudio.volume = 0.23
+        pickupAudio.play().catch(err => console.log('Pickup sound error:', err))
+      }
+      
       // Start playing drag sounds after a delay
       dragSoundIntervalRef.current = window.setTimeout(() => {
         playDragSound() // Play first sound after 3 seconds
@@ -180,6 +273,17 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
       
+      // Initialize velocity tracking
+      lastPositionRef.current = { x: initialDragOffset.x, y: initialDragOffset.y }
+      lastVelocityRef.current = { x: 0, y: 0 }
+      
+      // Play pickup sound
+      if (!isMuted) {
+        const pickupAudio = new Audio('/sounds/pickup.wav')
+        pickupAudio.volume = 0.23
+        pickupAudio.play().catch(err => console.log('Pickup sound error:', err))
+      }
+      
       // Start playing drag sounds after a delay
       dragSoundIntervalRef.current = window.setTimeout(() => {
         playDragSound() // Play first sound after 3 seconds
@@ -204,10 +308,47 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     if (isDragging) {
       const deltaX = e.clientX - dragStart.x
       const deltaY = e.clientY - dragStart.y
-      setDragPosition({
-        x: initialDragOffset.x + deltaX,
-        y: initialDragOffset.y + deltaY
-      })
+      const newX = initialDragOffset.x + deltaX
+      const newY = initialDragOffset.y + deltaY
+      
+      // Calculate velocity
+      const velocityX = newX - lastPositionRef.current.x
+      const velocityY = newY - lastPositionRef.current.y
+      const velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY)
+      
+      // Calculate direction change
+      const dotProduct = velocityX * lastVelocityRef.current.x + velocityY * lastVelocityRef.current.y
+      const lastMagnitude = Math.sqrt(lastVelocityRef.current.x * lastVelocityRef.current.x + lastVelocityRef.current.y * lastVelocityRef.current.y)
+      const currentMagnitude = velocity
+      
+      let directionChange = 0
+      if (lastMagnitude > 0.1 && currentMagnitude > 0.1) {
+        const cosAngle = dotProduct / (lastMagnitude * currentMagnitude)
+        directionChange = Math.abs(Math.acos(Math.max(-1, Math.min(1, cosAngle))))
+      }
+      
+      const now = Date.now()
+      const timeSinceLastWhoosh = now - lastWhooshTimeRef.current
+      const timeSinceLastDirectionWhoosh = now - lastDirectionWhooshTimeRef.current
+      
+      // Play whoosh sound for high velocity
+      if (!isMuted && velocity > 25 && timeSinceLastWhoosh > 200) {
+        playWhooshSound(velocity)
+        lastWhooshTimeRef.current = now
+      }
+      
+      // Play whoosh sound for direction change (separate cooldown)
+      if (!isMuted && directionChange > Math.PI / 2 && velocity > 10 && timeSinceLastDirectionWhoosh > 150) {
+        playWhooshSound(velocity)
+        lastDirectionWhooshTimeRef.current = now
+      }
+      
+      // Update position
+      setDragPosition({ x: newX, y: newY })
+      
+      // Update tracking refs
+      lastPositionRef.current = { x: newX, y: newY }
+      lastVelocityRef.current = { x: velocityX, y: velocityY }
     }
   }
   
@@ -217,10 +358,47 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       const touch = e.touches[0]
       const deltaX = touch.clientX - dragStart.x
       const deltaY = touch.clientY - dragStart.y
-      setDragPosition({
-        x: initialDragOffset.x + deltaX,
-        y: initialDragOffset.y + deltaY
-      })
+      const newX = initialDragOffset.x + deltaX
+      const newY = initialDragOffset.y + deltaY
+      
+      // Calculate velocity
+      const velocityX = newX - lastPositionRef.current.x
+      const velocityY = newY - lastPositionRef.current.y
+      const velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY)
+      
+      // Calculate direction change
+      const dotProduct = velocityX * lastVelocityRef.current.x + velocityY * lastVelocityRef.current.y
+      const lastMagnitude = Math.sqrt(lastVelocityRef.current.x * lastVelocityRef.current.x + lastVelocityRef.current.y * lastVelocityRef.current.y)
+      const currentMagnitude = velocity
+      
+      let directionChange = 0
+      if (lastMagnitude > 0.1 && currentMagnitude > 0.1) {
+        const cosAngle = dotProduct / (lastMagnitude * currentMagnitude)
+        directionChange = Math.abs(Math.acos(Math.max(-1, Math.min(1, cosAngle))))
+      }
+      
+      const now = Date.now()
+      const timeSinceLastWhoosh = now - lastWhooshTimeRef.current
+      const timeSinceLastDirectionWhoosh = now - lastDirectionWhooshTimeRef.current
+      
+      // Play whoosh sound for high velocity
+      if (!isMuted && velocity > 25 && timeSinceLastWhoosh > 200) {
+        playWhooshSound(velocity)
+        lastWhooshTimeRef.current = now
+      }
+      
+      // Play whoosh sound for direction change (separate cooldown)
+      if (!isMuted && directionChange > Math.PI / 2 && velocity > 10 && timeSinceLastDirectionWhoosh > 150) {
+        playWhooshSound(velocity)
+        lastDirectionWhooshTimeRef.current = now
+      }
+      
+      // Update position
+      setDragPosition({ x: newX, y: newY })
+      
+      // Update tracking refs
+      lastPositionRef.current = { x: newX, y: newY }
+      lastVelocityRef.current = { x: velocityX, y: velocityY }
     }
   }
   
@@ -241,6 +419,13 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       }, 0)
       triggerHaptic(10) // Small haptic on release
       
+      // Play drop sound
+      if (!isMuted) {
+        const dropAudio = new Audio('/sounds/drop.wav')
+        dropAudio.volume = 0.23
+        dropAudio.play().catch(err => console.log('Drop sound error:', err))
+      }
+      
       // Stop drag sound timer/interval
       if (dragSoundIntervalRef.current) {
         clearTimeout(dragSoundIntervalRef.current) // Works for both timeout and interval
@@ -251,6 +436,8 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       if (currentDraggedAudio) {
         currentDraggedAudio.pause()
         currentDraggedAudio.currentTime = 0
+        setIsSpeaking(false)
+        setWantToStopSpeaking(false)
       }
     }
   }
@@ -272,6 +459,13 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       }, 0)
       triggerHaptic(10) // Small haptic on release
       
+      // Play drop sound
+      if (!isMuted) {
+        const dropAudio = new Audio('/sounds/drop.wav')
+        dropAudio.volume = 0.23
+        dropAudio.play().catch(err => console.log('Drop sound error:', err))
+      }
+      
       // Stop drag sound timer/interval
       if (dragSoundIntervalRef.current) {
         clearTimeout(dragSoundIntervalRef.current) // Works for both timeout and interval
@@ -282,6 +476,8 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       if (currentDraggedAudio) {
         currentDraggedAudio.pause()
         currentDraggedAudio.currentTime = 0
+        setIsSpeaking(false)
+        setWantToStopSpeaking(false)
       }
     } else {
       // It was a tap, not a drag
@@ -327,6 +523,43 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     }
   }, [isDragging, dragStart, initialDragOffset])
   
+  // Speaking animation loop
+  useEffect(() => {
+    if ((isSpeaking || wantToStopSpeaking) && !showPokedFace) {
+      // Start or continue animation loop
+      if (!speakAnimationRef.current) {
+        speakAnimationRef.current = window.setInterval(() => {
+          setSpeakFrame(prev => {
+            const nextFrame = prev === 0 ? 1 : 0
+            
+            // If we want to stop and we're back at frame 0, actually stop
+            if (wantToStopSpeaking && nextFrame === 0) {
+              setIsSpeaking(false)
+              setWantToStopSpeaking(false)
+            }
+            
+            return nextFrame
+          })
+        }, 200) // Toggle every 200ms
+      }
+    } else {
+      // Stop animation and reset to default
+      if (speakAnimationRef.current) {
+        clearInterval(speakAnimationRef.current)
+        speakAnimationRef.current = null
+      }
+      setSpeakFrame(0)
+      setWantToStopSpeaking(false)
+    }
+    
+    return () => {
+      if (speakAnimationRef.current) {
+        clearInterval(speakAnimationRef.current)
+        speakAnimationRef.current = null
+      }
+    }
+  }, [isSpeaking, showPokedFace, wantToStopSpeaking])
+  
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -339,6 +572,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       }
       if (currentPokedAudio) {
         currentPokedAudio.pause()
+      }
+      if (speakAnimationRef.current) {
+        clearInterval(speakAnimationRef.current)
       }
     }
   }, [])
@@ -378,7 +614,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       </svg>
       {/* Face in center - not rotating */}
       <img 
-        src={showPokedFace ? '/zog-chan-poked.svg' : dzogChanFace}
+        src={showPokedFace ? '/zog-chan-poked.svg' : (isSpeaking && speakFrame === 1 ? '/zog-chan-speak.svg' : dzogChanFace)}
         alt=""
         width={size * 0.3} 
         height={size * 0.3} 
