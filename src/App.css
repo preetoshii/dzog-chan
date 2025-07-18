@@ -553,6 +553,16 @@ html, body {
   color: rgba(0, 0, 0, 0.15);
 }
 
+/* Smooth placeholder text transition */
+.input-field::placeholder {
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Placeholder fading animation */
+.input-field.placeholder-fading::placeholder {
+  opacity: 0 !important;
+}
+
 /* Hide placeholder when typing */
 .dark .input-field:not(:placeholder-shown)::placeholder {
   color: rgba(255, 255, 255, 0);

@@ -34,6 +34,9 @@ function App() {
   const [showUI, setShowUI] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
+  const placeholderWords = ['honestly', 'with curiosity', 'sincerely', 'openly', 'freely']
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [placeholderFading, setPlaceholderFading] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -465,6 +468,19 @@ function App() {
     }
   }, [showResponse, response])
 
+  // Rotate placeholder text with fade effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderFading(true)
+      setTimeout(() => {
+        setPlaceholderIndex(prev => (prev + 1) % placeholderWords.length)
+        setPlaceholderFading(false)
+      }, 250) // Half of the fade duration
+    }, 3000) // Change every 3 seconds
+
+    return () => clearInterval(interval)
+  }, [])
+
   // Handle mouse movement for button visibility
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -635,8 +651,8 @@ function App() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="respond honestly"
-            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
+            placeholder={`respond ${placeholderWords[placeholderIndex]}`}
+            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''} ${placeholderFading ? 'placeholder-fading' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
               borderColor: isDark 
