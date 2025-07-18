@@ -10,6 +10,30 @@ interface RotatingTriangleProps {
 
 const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick, isDark = true }) => {
   const [faceTransform, setFaceTransform] = useState({ x: 0, y: 0, rotate: 0 })
+  const [isHovered, setIsHovered] = useState(false)
+  const [isPoked, setIsPoked] = useState(false)
+  
+  // Play random poked sound
+  const playPokedSound = () => {
+    // Get random sound number (will need to update this based on how many files you add)
+    const soundCount = 5 // Update this when you add more sounds
+    const randomNum = Math.floor(Math.random() * soundCount) + 1
+    const audio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
+    audio.play().catch(err => console.log('Sound not found yet:', err))
+  }
+  
+  const handleClick = () => {
+    if (onClick) {
+      onClick()
+    }
+    
+    // Trigger poke animation
+    setIsPoked(true)
+    setTimeout(() => setIsPoked(false), 200)
+    
+    // Play sound
+    playPokedSound()
+  }
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -32,7 +56,13 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
   return (
-    <div className="rotating-triangle-container" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <div 
+      className={`rotating-triangle-container ${isHovered ? 'hovered' : ''} ${isPoked ? 'poked' : ''}`}
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <svg 
         width={size} 
         height={size} 
