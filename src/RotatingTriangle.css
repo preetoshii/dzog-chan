@@ -5,15 +5,18 @@
 }
 
 .rotating-triangle {
-  animation: rotate 4s linear infinite;
+  animation: rotateWithPause 6s ease-in-out infinite;
   opacity: 0.8;
 }
 
-@keyframes rotate {
-  from {
+@keyframes rotateWithPause {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  50% {
+    transform: rotate(360deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
