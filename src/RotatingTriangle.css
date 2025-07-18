@@ -1,0 +1,19 @@
+.rotating-triangle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rotating-triangle {
+  animation: rotate 4s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

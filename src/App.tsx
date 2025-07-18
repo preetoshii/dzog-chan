@@ -3,6 +3,7 @@ import OpenAI from 'openai'
 import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
 import { getRandomGuidance } from './initial-guidance'
 import { generateSpeech, playAudio } from './elevenlabs-config'
+import RotatingTriangle from './RotatingTriangle'
 import './App.css'
 
 const openai = new OpenAI({
@@ -373,14 +374,7 @@ function App() {
           {(response || isFadingOut) && (
             <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? 'fade-out' : ''}`} key={responseKey}>
               {response === '[PRAYER_HANDS]' ? (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
-                  {/* Left hand */}
-                  <path d="M11 20V8c0-1.5-1.5-3-3-3s-3 1.5-3 3v7c0 1.5.5 3 2 4l4 3" />
-                  {/* Right hand */}
-                  <path d="M13 20V8c0-1.5 1.5-3 3-3s3 1.5 3 3v7c0 1.5-.5 3-2 4l-4 3" />
-                  {/* Thumbs */}
-                  <path d="M8 11L9 10M16 11L15 10" />
-                </svg>
+                <RotatingTriangle />
               ) : (
                 <p>
                   {(() => {
