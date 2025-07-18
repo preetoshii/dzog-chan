@@ -10,6 +10,13 @@
   position: relative;
   transition: transform 0.2s ease-out;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.rotating-triangle-container.dragging {
+  cursor: grabbing !important;
 }
 
 /* Poke effect - quick scale animation */

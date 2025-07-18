@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './RotatingTriangle.css'
 import dzogChanFace from './assets/dzog-chan-face.svg'
 import { POKED_SOUNDS } from './poked-sounds'
@@ -17,6 +17,13 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [showPokedFace, setShowPokedFace] = useState(false)
   const [currentPokedAudio, setCurrentPokedAudio] = useState<HTMLAudioElement | null>(null)
   const [recentSounds, setRecentSounds] = useState<string[]>([]) // Track last 3 played sounds
+  
+  // Drag state
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 })
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [initialDragOffset, setInitialDragOffset] = useState({ x: 0, y: 0 })
+  const dragTimeoutRef = useRef<number | null>(null)
   
   // Play sounds when poked
   const playPokedSounds = async () => {
@@ -61,27 +68,122 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   }
   
   const handleClick = () => {
-    if (onClick) {
-      onClick()
+    // Only trigger click if we didn't just drag
+    if (!isDragging) {
+      if (onClick) {
+        onClick()
+      }
+      
+      // Trigger haptic feedback on mobile
+      triggerHaptic(10) // Short 10ms vibration
+      
+      // Trigger poke animation
+      setIsPoked(true)
+      setTimeout(() => setIsPoked(false), 200)
+      
+      // Show poked face expression
+      setShowPokedFace(true)
+      setTimeout(() => setShowPokedFace(false), 500) // Show for 500ms
+      
+      // Play sounds
+      playPokedSounds()
+    }
+  }
+  
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    setDragStart({ x: e.clientX, y: e.clientY })
+    setInitialDragOffset({ 
+      x: dragPosition.x,
+      y: dragPosition.y 
+    })
+    
+    // Start drag after a short delay to differentiate from click
+    dragTimeoutRef.current = window.setTimeout(() => {
+      setIsDragging(true)
+      triggerHaptic(20) // Slightly longer haptic for drag start
+    }, 150)
+  }
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
+    const touch = e.touches[0]
+    const rect = e.currentTarget.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    setDragStart({ x: touch.clientX, y: touch.clientY })
+    setInitialDragOffset({ 
+      x: dragPosition.x,
+      y: dragPosition.y 
+    })
+    
+    // Start drag after a short delay to differentiate from tap
+    dragTimeoutRef.current = window.setTimeout(() => {
+      setIsDragging(true)
+      triggerHaptic(20) // Slightly longer haptic for drag start
+    }, 150)
+  }
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const deltaX = e.clientX - dragStart.x
+      const deltaY = e.clientY - dragStart.y
+      setDragPosition({
+        x: initialDragOffset.x + deltaX,
+        y: initialDragOffset.y + deltaY
+      })
+    }
+  }
+  
+  const handleTouchMove = (e: TouchEvent) => {
+    if (isDragging) {
+      e.preventDefault()
+      const touch = e.touches[0]
+      const deltaX = touch.clientX - dragStart.x
+      const deltaY = touch.clientY - dragStart.y
+      setDragPosition({
+        x: initialDragOffset.x + deltaX,
+        y: initialDragOffset.y + deltaY
+      })
+    }
+  }
+  
+  const handleMouseUp = () => {
+    if (dragTimeoutRef.current) {
+      clearTimeout(dragTimeoutRef.current)
     }
     
-    // Trigger haptic feedback on mobile
-    triggerHaptic(10) // Short 10ms vibration
+    if (isDragging) {
+      setIsDragging(false)
+      // Animate back to center
+      setDragPosition({ x: 0, y: 0 })
+      triggerHaptic(10) // Small haptic on release
+    }
+  }
+  
+  const handleTouchEnd = () => {
+    if (dragTimeoutRef.current) {
+      clearTimeout(dragTimeoutRef.current)
+    }
     
-    // Trigger poke animation
-    setIsPoked(true)
-    setTimeout(() => setIsPoked(false), 200)
-    
-    // Show poked face expression
-    setShowPokedFace(true)
-    setTimeout(() => setShowPokedFace(false), 500) // Show for 500ms
-    
-    // Play sounds
-    playPokedSounds()
+    if (isDragging) {
+      setIsDragging(false)
+      // Animate back to center
+      setDragPosition({ x: 0, y: 0 })
+      triggerHaptic(10) // Small haptic on release
+    } else {
+      // It was a tap, not a drag
+      handleClick()
+    }
   }
   
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleFaceMouseMove = (e: MouseEvent) => {
       const centerX = window.innerWidth / 2
       const centerY = window.innerHeight / 2
       
@@ -97,18 +199,42 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       })
     }
     
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', handleFaceMouseMove)
+    return () => window.removeEventListener('mousemove', handleFaceMouseMove)
   }, [])
+  
+  // Global event listeners for drag
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+      window.addEventListener('touchmove', handleTouchMove, { passive: false })
+      window.addEventListener('touchend', handleTouchEnd)
+      
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+        window.removeEventListener('touchmove', handleTouchMove)
+        window.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+  }, [isDragging, dragStart, initialDragOffset])
   return (
     <div className="triangle-float-wrapper">
       <div 
-        className={`rotating-triangle-container ${isHovered ? 'hovered' : ''} ${isPoked ? 'poked' : ''}`}
+        className={`rotating-triangle-container ${isHovered ? 'hovered' : ''} ${isPoked ? 'poked' : ''} ${isDragging ? 'dragging' : ''}`}
         onClick={handleClick}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{ 
-          transform: isHovered ? 'scale(1.1)' : 'scale(1)'
+          transform: `
+            translate(${dragPosition.x}px, ${dragPosition.y}px) 
+            scale(${isHovered && !isDragging ? 1.1 : 1})
+          `,
+          transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+          cursor: isDragging ? 'grabbing' : 'pointer'
         }}
       >
       <svg 
