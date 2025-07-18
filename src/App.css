@@ -554,20 +554,12 @@ html, body {
 }
 
 /* Smooth placeholder text transition */
-@keyframes placeholderFade {
-  0%, 10% {
-    opacity: 0;
-  }
-  20%, 80% {
-    opacity: 1;
-  }
-  90%, 100% {
-    opacity: 0;
-  }
+.input-field::placeholder {
+  transition: opacity 0.5s ease-in-out;
 }
 
-.input-field::placeholder {
-  animation: placeholderFade 4s ease-in-out infinite;
+.input-field.placeholder-fade::placeholder {
+  opacity: 0 !important;
 }
 
 /* Hide placeholder when typing */

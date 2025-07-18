@@ -36,6 +36,7 @@ function App() {
   const [isStarting, setIsStarting] = useState(false)
   const placeholderWords = ['honestly', 'with curiosity', 'sincerely', 'openly', 'freely']
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [offTopicCount, setOffTopicCount] = useState(0)
   
   // Detect if mobile device
@@ -484,11 +485,18 @@ function App() {
     }
   }, [showResponse, response])
 
-  // Rotate placeholder text
+  // Rotate placeholder text with fade effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setPlaceholderIndex(prev => (prev + 1) % placeholderWords.length)
-    }, 4000) // Change every 4 seconds
+      // Fade out
+      setPlaceholderVisible(false)
+      
+      // Change text and fade in after a delay
+      setTimeout(() => {
+        setPlaceholderIndex(prev => (prev + 1) % placeholderWords.length)
+        setPlaceholderVisible(true)
+      }, 500)
+    }, 8000) // Change every 8 seconds
 
     return () => clearInterval(interval)
   }, [])
@@ -664,7 +672,7 @@ function App() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={input || voiceMode ? "" : `respond ${placeholderWords[placeholderIndex]}`}
-            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
+            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''} ${!placeholderVisible ? 'placeholder-fade' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
               borderColor: isDark 
