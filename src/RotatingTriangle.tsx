@@ -8,9 +8,10 @@ interface RotatingTriangleProps {
   size?: number
   onClick?: () => void
   isDark?: boolean
+  isMuted?: boolean
 }
 
-const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick, isDark = true }) => {
+const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick, isDark = true, isMuted = false }) => {
   const [faceTransform, setFaceTransform] = useState({ x: 0, y: 0, rotate: 0 })
   const [isHovered, setIsHovered] = useState(false)
   const [isPoked, setIsPoked] = useState(false)
@@ -28,6 +29,8 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   
   // Play sounds when poked
   const playPokedSounds = async () => {
+    if (isMuted) return // Don't play any sounds if muted
+    
     // Play the hithurt sound
     const hithurtAudio = new Audio('/sounds/hitHurt.wav')
     hithurtAudio.volume = 0.7 // Slightly lower volume to avoid clipping

@@ -64,24 +64,42 @@ export async function generateSpeech(text: string): Promise<ArrayBuffer | null> 
   }
 }
 
+// Keep track of current audio instance to stop it when muted
+let currentAudio: HTMLAudioElement | null = null
+
+export function stopCurrentAudio() {
+  if (currentAudio) {
+    currentAudio.pause()
+    currentAudio.currentTime = 0
+    currentAudio = null
+  }
+}
+
 export function playAudio(audioBuffer: ArrayBuffer): Promise<void> {
   return new Promise((resolve) => {
+    // Stop any currently playing audio
+    stopCurrentAudio()
+    
     const blob = new Blob([audioBuffer], { type: 'audio/mpeg' })
     const url = URL.createObjectURL(blob)
     const audio = new Audio(url)
+    currentAudio = audio
     
     audio.addEventListener('ended', () => {
       URL.revokeObjectURL(url)
+      currentAudio = null
       resolve()
     })
     
     audio.addEventListener('error', () => {
       URL.revokeObjectURL(url)
+      currentAudio = null
       resolve() // Resolve even on error to continue flow
     })
     
     audio.play().catch(() => {
       URL.revokeObjectURL(url)
+      currentAudio = null
       resolve()
     })
   })

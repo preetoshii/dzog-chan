@@ -2,10 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import OpenAI from 'openai'
 import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
 import { getRandomGuidance } from './initial-guidance'
-import { generateSpeech, playAudio } from './elevenlabs-config'
+import { generateSpeech, playAudio, stopCurrentAudio } from './elevenlabs-config'
 import RotatingTriangle from './RotatingTriangle'
 import { triggerHaptic } from './utils/haptic'
-import { playClickSound } from './utils/sounds'
+import { playClickSound, setMuted } from './utils/sounds'
 import './App.css'
 
 const openai = new OpenAI({
@@ -529,7 +529,7 @@ function App() {
         <>
           <div className="response-container">
             <div className={`response fade-in ${isStarting ? 'triangle-exit' : ''}`}>
-              <RotatingTriangle isDark={isDark} />
+              <RotatingTriangle isDark={isDark} isMuted={isMuted} />
             </div>
           </div>
           <button 
@@ -569,7 +569,13 @@ function App() {
         onClick={() => {
           triggerHaptic(10)
           playClickSound()
-          setIsMuted(!isMuted)
+          const newMutedState = !isMuted
+          setIsMuted(newMutedState)
+          setMuted(newMutedState) // Sync with sound utilities
+          // Stop any currently playing audio when muting
+          if (newMutedState) {
+            stopCurrentAudio()
+          }
         }}
         className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
         aria-label="Toggle mute"
@@ -686,7 +692,7 @@ function App() {
           {/* Show triangle - either standalone or fading in during transition */}
           {((response === '[PRAYER_HANDS]' && showResponse) || showTriangleAfterDelay || isTriangleFadingOut) && (
             <div className={`response ${showTriangleAfterDelay ? 'fade-in-slow' : 'fade-in'} ${isTriangleFadingOut ? 'fade-out-quick' : ''}`} key={`triangle-${responseKey}`}>
-              <RotatingTriangle onClick={handleTriangleClick} isDark={isDark} />
+              <RotatingTriangle onClick={handleTriangleClick} isDark={isDark} isMuted={isMuted} />
             </div>
           )}
         </div>
