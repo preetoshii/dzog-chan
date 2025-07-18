@@ -46,6 +46,17 @@ function App() {
     }
   }, [isDark])
   
+  // Register service worker for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('ServiceWorker registration failed: ', err)
+        })
+      })
+    }
+  }, [])
+  
   // Wave effect configuration
   const WAVE_HEIGHT = 3 // pixels - controls how high characters float
   const WAVE_SPEED = 3.5 // seconds - duration of one complete wave cycle
