@@ -4,6 +4,7 @@ import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
 import { getRandomGuidance } from './initial-guidance'
 import { generateSpeech, playAudio } from './elevenlabs-config'
 import RotatingTriangle from './RotatingTriangle'
+import { triggerHaptic } from './utils/haptic'
 import './App.css'
 
 const openai = new OpenAI({
@@ -83,6 +84,7 @@ function App() {
 
   // Handle starting the experience
   const handleStart = async () => {
+    triggerHaptic(10)
     setIsStarting(true)
     // Wait for animation to complete
     setTimeout(() => {
@@ -122,6 +124,7 @@ function App() {
   }
 
   const handleTriangleClick = async () => {
+    // Haptic is handled in RotatingTriangle component
     // Get a new initial guidance
     const newGuidance = getRandomGuidance()
     
@@ -385,6 +388,7 @@ function App() {
   }
 
   const handleVoiceButtonClick = () => {
+    triggerHaptic(10)
     if (isMobile && voiceMode && !isListening && !isProcessing) {
       // On mobile in voice mode, treat as push-to-talk
       startListening()
@@ -537,7 +541,10 @@ function App() {
       )}
       {hasStarted && (
         <button
-          onClick={() => setIsDark(!isDark)}
+          onClick={() => {
+            triggerHaptic(10)
+            setIsDark(!isDark)
+          }}
           className={`dark-mode-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
           aria-label="Toggle dark mode"
         >
@@ -555,7 +562,10 @@ function App() {
 
       {hasStarted && (
         <button
-        onClick={() => setIsMuted(!isMuted)}
+        onClick={() => {
+          triggerHaptic(10)
+          setIsMuted(!isMuted)
+        }}
         className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
         aria-label="Toggle mute"
       >

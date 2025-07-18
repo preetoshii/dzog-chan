@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './RotatingTriangle.css'
 import dzogChanFace from './assets/dzog-chan-face.svg'
 import { POKED_SOUNDS } from './poked-sounds'
+import { triggerHaptic } from './utils/haptic'
 
 interface RotatingTriangleProps {
   size?: number
@@ -62,6 +63,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     if (onClick) {
       onClick()
     }
+    
+    // Trigger haptic feedback on mobile
+    triggerHaptic(10) // Short 10ms vibration
     
     // Trigger poke animation
     setIsPoked(true)
