@@ -162,6 +162,21 @@
   }
 }
 
+/* Wave animation for individual characters */
+.wave-char {
+  display: inline-block;
+  animation: wave 3s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(-1 * var(--wave-height, 4px)));
+  }
+}
+
 
 .input-form {
   position: fixed;

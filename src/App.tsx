@@ -27,6 +27,11 @@ function App() {
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   
+  // Wave effect configuration
+  const WAVE_HEIGHT = 4 // pixels - controls how high characters float
+  const WAVE_SPEED = 3 // seconds - duration of one complete wave cycle
+  const WAVE_DELAY = 0.05 // seconds - delay between each character
+  
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
@@ -350,12 +355,29 @@ function App() {
         <div className="response-container">
           {response && (
             <p className={`response ${showResponse ? 'fade-in' : ''}`}>
-              {response.split('. ').map((sentence, index, array) => (
-                <span key={index}>
-                  {sentence}{index < array.length - 1 ? '.' : ''}
-                  {index < array.length - 1 && <br />}
-                </span>
-              ))}
+              {response.split('').map((char, charIndex) => {
+                // Handle spaces
+                if (char === ' ') {
+                  return <span key={charIndex} style={{ display: 'inline' }}>&nbsp;</span>
+                }
+                
+                // Calculate animation delay for each character
+                const delay = charIndex * WAVE_DELAY
+                
+                return (
+                  <span
+                    key={charIndex}
+                    className="wave-char"
+                    style={{
+                      animationDelay: `${delay}s`,
+                      animationDuration: `${WAVE_SPEED}s`,
+                      '--wave-height': `${WAVE_HEIGHT}px`
+                    } as React.CSSProperties}
+                  >
+                    {char}
+                  </span>
+                )
+              })}
             </p>
           )}
         </div>
