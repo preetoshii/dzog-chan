@@ -39,7 +39,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
           left: '50%', 
           transform: 'translate(-50%, -50%)',
           pointerEvents: 'none',
-          filter: isDark ? 'invert(1)' : 'none'
+          filter: isDark ? 'none' : 'invert(1)'
         }}
       />
     </div>
