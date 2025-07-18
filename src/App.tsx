@@ -5,7 +5,7 @@ import { getRandomGuidance } from './initial-guidance'
 import { generateSpeech, playAudio } from './elevenlabs-config'
 import RotatingTriangle from './RotatingTriangle'
 import { triggerHaptic } from './utils/haptic'
-import { playSelectSound, playClickSound } from './utils/sounds'
+import { playClickSound } from './utils/sounds'
 import './App.css'
 
 const openai = new OpenAI({
@@ -86,7 +86,7 @@ function App() {
   // Handle starting the experience
   const handleStart = async () => {
     triggerHaptic(10)
-    playSelectSound()
+    playClickSound()
     setIsStarting(true)
     // Wait for animation to complete
     setTimeout(() => {
@@ -598,7 +598,7 @@ function App() {
               onClick={async () => {
                 // Fade out text and show triangle
                 triggerHaptic(10)
-                playSelectSound()
+                playClickSound()
                 setFadeOutType('quick')
                 setIsFadingOut(true)
                 await new Promise(resolve => setTimeout(resolve, 1500))
