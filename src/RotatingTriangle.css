@@ -5,7 +5,7 @@
 }
 
 .rotating-triangle {
-  animation: rotateWithPause 6s ease-in-out infinite;
+  animation: rotateWithPause 10s ease-in-out infinite;
   opacity: 0.8;
 }
 
