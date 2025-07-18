@@ -259,9 +259,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         style={{ 
           transform: `
             translate(${dragPosition.x}px, ${dragPosition.y}px) 
-            scale(${isHovered && !isDragging ? 1.1 : 1})
+            scale(${isDragging ? 2 : isHovered ? 1.1 : 1})
           `,
-          transition: isDragging ? 'none' : 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: isDragging ? 'transform 0.2s ease-out' : 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
           cursor: isDragging ? 'grabbing' : 'pointer'
         }}
       >
