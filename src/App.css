@@ -8,6 +8,7 @@
 button, input, textarea {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 /* Allow text selection only in input fields */
@@ -16,9 +17,10 @@ input, textarea {
   user-select: text;
 }
 
-/* Prevent pull-to-refresh on mobile */
-body {
-  overscroll-behavior-y: contain;
+/* Prevent pull-to-refresh and scrolling on mobile */
+html, body {
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 /* Initial UI fade-in animation */
@@ -125,13 +127,17 @@ body {
 }
 
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: background-color 0.5s ease, color 0.5s ease;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
   /* Prevent text size adjustment on mobile */
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
@@ -475,6 +481,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-appearance: none;
   appearance: none;
+  touch-action: manipulation;
 }
 
 .input-field.voice-mode {
