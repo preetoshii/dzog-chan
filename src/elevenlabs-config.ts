@@ -15,7 +15,7 @@ export const VOICE_IDS = {
   sam: 'yoZ06aMxZJJ28mfd3POQ',
   
   // Add your custom voice ID here if you've cloned one
-  custom: 'Md7giZ3VtmUw7F4bo0Yf'
+  custom: '8NMmEzpBSm7LrTMYgxXD'
 }
 
 // Choose which voice to use
@@ -23,9 +23,9 @@ export const SELECTED_VOICE = VOICE_IDS.custom // Using your custom voice
 
 // Voice settings
 export const VOICE_SETTINGS = {
-  stability: 0.75,      // Higher for more consistent voice
+  stability: 0.85,      // Higher for more consistent voice
   similarity_boost: 1.0, // Maximum to match original voice characteristics
-  style: 0.0,           // Lower for more natural, less expressive
+  style: 0.5,           // Increased to preserve more expressive characteristics
   use_speaker_boost: true
 }
 
@@ -47,7 +47,7 @@ export async function generateSpeech(text: string): Promise<ArrayBuffer | null> 
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_multilingual_v2', // Better for preserving voice characteristics
+          model_id: 'eleven_monolingual_v1', // Try monolingual for better accent preservation
           voice_settings: VOICE_SETTINGS
         })
       }
