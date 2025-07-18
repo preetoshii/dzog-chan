@@ -47,7 +47,7 @@ export async function generateSpeech(text: string): Promise<ArrayBuffer | null> 
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_monolingual_v1', // Try monolingual for better accent preservation
+          model_id: 'eleven_turbo_v2_5', // Optimized for quality with v3-created voices
           voice_settings: VOICE_SETTINGS
         })
       }
