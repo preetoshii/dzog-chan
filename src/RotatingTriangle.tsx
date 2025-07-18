@@ -74,7 +74,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     // Show poked face expression
     setShowPokedFace(true)
-    setTimeout(() => setShowPokedFace(false), 100) // Show for 100ms
+    setTimeout(() => setShowPokedFace(false), 500) // Show for 500ms
     
     // Play sounds
     playPokedSounds()
