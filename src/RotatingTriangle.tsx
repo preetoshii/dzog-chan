@@ -30,12 +30,12 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     // Small delay to ensure both sounds can start properly
     setTimeout(() => {
       // Play a random poked sound
-      const soundCount = 5 // Update this when you add more sounds
+      const soundCount = 1 // Update this when you add more sounds (currently only poked-1.wav exists)
       const randomNum = Math.floor(Math.random() * soundCount) + 1
       const pokedAudio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
       pokedAudio.volume = 0.8
       setCurrentPokedAudio(pokedAudio)
-      pokedAudio.play().catch(err => console.log('Poked sound not found yet:', err))
+      pokedAudio.play().catch(err => console.log(`Poked sound ${randomNum} not found:`, err))
     }, 50) // 50ms delay
   }
   
@@ -80,7 +80,6 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{ 
-          cursor: onClick ? 'pointer' : 'default',
           transform: isHovered ? 'scale(1.1)' : 'scale(1)'
         }}
       >
