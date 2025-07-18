@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './RotatingTriangle.css'
 import dzogChanFace from './assets/dzog-chan-face.svg'
+import { POKED_SOUNDS } from './poked-sounds'
 
 interface RotatingTriangleProps {
   size?: number
@@ -29,13 +30,15 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     
     // Small delay to ensure both sounds can start properly
     setTimeout(() => {
-      // Play a random poked sound
-      const soundCount = 1 // Update this when you add more sounds (currently only poked-1.wav exists)
-      const randomNum = Math.floor(Math.random() * soundCount) + 1
-      const pokedAudio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
-      pokedAudio.volume = 0.8
-      setCurrentPokedAudio(pokedAudio)
-      pokedAudio.play().catch(err => console.log(`Poked sound ${randomNum} not found:`, err))
+      // Play a random poked sound from the list
+      if (POKED_SOUNDS.length > 0) {
+        const randomIndex = Math.floor(Math.random() * POKED_SOUNDS.length)
+        const randomSound = POKED_SOUNDS[randomIndex]
+        const pokedAudio = new Audio(`/sounds/poked/${randomSound}`)
+        pokedAudio.volume = 0.8
+        setCurrentPokedAudio(pokedAudio)
+        pokedAudio.play().catch(err => console.log(`Poked sound ${randomSound} error:`, err))
+      }
     }, 50) // 50ms delay
   }
   
