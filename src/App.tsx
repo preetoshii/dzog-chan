@@ -23,6 +23,7 @@ function App() {
   const [isMuted, setIsMuted] = useState(false)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
+  const [responseKey, setResponseKey] = useState(0)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -52,6 +53,7 @@ function App() {
     // Set response but don't show it yet
     setResponse(initialGuidance)
     setShowResponse(false)
+    setResponseKey(1)
     // Small delay before fading in for better effect
     setTimeout(() => {
       setShowResponse(true)
@@ -104,6 +106,7 @@ function App() {
       
       setResponse(finalResponse)
       setShowResponse(true)
+      setResponseKey(prev => prev + 1)
       
       // Generate and play voice response if not muted and not just emoji
       if (!isMuted && finalResponse !== '🙏') {
@@ -354,7 +357,7 @@ function App() {
       <div className="content">
         <div className="response-container">
           {response && (
-            <p className={`response ${showResponse ? 'fade-in' : ''}`}>
+            <p className={`response ${showResponse ? 'fade-in' : ''}`} key={responseKey}>
               {(() => {
                 let charIndex = 0
                 return response.split('. ').map((sentence, sentenceIndex, array) => (
