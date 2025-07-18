@@ -3,6 +3,7 @@ import './RotatingTriangle.css'
 import dzogChanFace from './assets/dzog-chan-face.svg'
 import { POKED_SOUNDS } from './poked-sounds'
 import { DRAGGED_SOUNDS } from './dragged-sounds'
+import { PICKED_SOUNDS } from './picked-sounds'
 import { triggerHaptic } from './utils/haptic'
 
 interface RotatingTriangleProps {
@@ -21,6 +22,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [recentSounds, setRecentSounds] = useState<string[]>([]) // Track last 3 played sounds
   const [currentDraggedAudio, setCurrentDraggedAudio] = useState<HTMLAudioElement | null>(null)
   const [recentDragSounds, setRecentDragSounds] = useState<string[]>([]) // Track last 3 played drag sounds
+  const [recentPickedSounds, setRecentPickedSounds] = useState<string[]>([]) // Track last 3 played picked sounds
   const dragSoundIntervalRef = useRef<number | null>(null)
   
   // Speaking animation state
@@ -147,6 +149,32 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     }
   }
   
+  // Play random picked sound
+  const playPickedSound = () => {
+    if (isMuted || PICKED_SOUNDS.length === 0) return
+    
+    // Filter out sounds that were played in the last 3 times
+    const availableSounds = PICKED_SOUNDS.filter(sound => !recentPickedSounds.includes(sound))
+    
+    // If all sounds have been played recently, allow all sounds again
+    const soundPool = availableSounds.length > 0 ? availableSounds : PICKED_SOUNDS
+    
+    // Pick a random sound from the available pool
+    const randomIndex = Math.floor(Math.random() * soundPool.length)
+    const randomSound = soundPool[randomIndex]
+    
+    // Update recent sounds list (keep only last 3)
+    setRecentPickedSounds(prev => {
+      const newRecent = [randomSound, ...prev].slice(0, 3)
+      return newRecent
+    })
+    
+    // Play the sound
+    const pickedAudio = new Audio(`/sounds/picked/${randomSound}`)
+    pickedAudio.volume = 0.7
+    pickedAudio.play().catch(err => console.log(`Picked sound ${randomSound} error:`, err))
+  }
+  
   // Play random drag sound
   const playDragSound = () => {
     if (isMuted || DRAGGED_SOUNDS.length === 0) return
@@ -231,11 +259,14 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       lastPositionRef.current = { x: initialDragOffset.x, y: initialDragOffset.y }
       lastVelocityRef.current = { x: 0, y: 0 }
       
-      // Play pickup sound
+      // Play pickup sound and picked sound
       if (!isMuted) {
         const pickupAudio = new Audio('/sounds/pickup.wav')
         pickupAudio.volume = 0.23
         pickupAudio.play().catch(err => console.log('Pickup sound error:', err))
+        
+        // Play random picked sound
+        playPickedSound()
       }
       
       // Start playing drag sounds after a delay
@@ -277,11 +308,14 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       lastPositionRef.current = { x: initialDragOffset.x, y: initialDragOffset.y }
       lastVelocityRef.current = { x: 0, y: 0 }
       
-      // Play pickup sound
+      // Play pickup sound and picked sound
       if (!isMuted) {
         const pickupAudio = new Audio('/sounds/pickup.wav')
         pickupAudio.volume = 0.23
         pickupAudio.play().catch(err => console.log('Pickup sound error:', err))
+        
+        // Play random picked sound
+        playPickedSound()
       }
       
       // Start playing drag sounds after a delay
@@ -335,12 +369,22 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       if (!isMuted && velocity > 25 && timeSinceLastWhoosh > 200) {
         playWhooshSound(velocity)
         lastWhooshTimeRef.current = now
+        
+        // Also play picked sound at high velocities (>50)
+        if (velocity > 50) {
+          playPickedSound()
+        }
       }
       
       // Play whoosh sound for direction change (separate cooldown)
       if (!isMuted && directionChange > Math.PI / 2 && velocity > 10 && timeSinceLastDirectionWhoosh > 150) {
         playWhooshSound(velocity)
         lastDirectionWhooshTimeRef.current = now
+        
+        // Also play picked sound for fast direction changes
+        if (velocity > 40) {
+          playPickedSound()
+        }
       }
       
       // Update position
@@ -385,12 +429,22 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       if (!isMuted && velocity > 25 && timeSinceLastWhoosh > 200) {
         playWhooshSound(velocity)
         lastWhooshTimeRef.current = now
+        
+        // Also play picked sound at high velocities (>50)
+        if (velocity > 50) {
+          playPickedSound()
+        }
       }
       
       // Play whoosh sound for direction change (separate cooldown)
       if (!isMuted && directionChange > Math.PI / 2 && velocity > 10 && timeSinceLastDirectionWhoosh > 150) {
         playWhooshSound(velocity)
         lastDirectionWhooshTimeRef.current = now
+        
+        // Also play picked sound for fast direction changes
+        if (velocity > 40) {
+          playPickedSound()
+        }
       }
       
       // Update position
