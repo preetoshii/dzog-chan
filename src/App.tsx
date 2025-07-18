@@ -355,29 +355,53 @@ function App() {
         <div className="response-container">
           {response && (
             <p className={`response ${showResponse ? 'fade-in' : ''}`}>
-              {response.split('').map((char, charIndex) => {
-                // Handle spaces
-                if (char === ' ') {
-                  return <span key={charIndex} style={{ display: 'inline' }}>&nbsp;</span>
-                }
-                
-                // Calculate animation delay for each character
-                const delay = charIndex * WAVE_DELAY
-                
-                return (
-                  <span
-                    key={charIndex}
-                    className="wave-char"
-                    style={{
-                      animationDelay: `${delay}s`,
-                      animationDuration: `${WAVE_SPEED}s`,
-                      '--wave-height': `${WAVE_HEIGHT}px`
-                    } as React.CSSProperties}
-                  >
-                    {char}
+              {(() => {
+                let charIndex = 0
+                return response.split('. ').map((sentence, sentenceIndex, array) => (
+                  <span key={sentenceIndex}>
+                    {sentence.split('').map((char) => {
+                      const currentCharIndex = charIndex++
+                      
+                      // Handle spaces
+                      if (char === ' ') {
+                        return <span key={currentCharIndex} style={{ display: 'inline' }}>&nbsp;</span>
+                      }
+                      
+                      // Calculate animation delay for each character
+                      const delay = currentCharIndex * WAVE_DELAY
+                      
+                      return (
+                        <span
+                          key={currentCharIndex}
+                          className="wave-char"
+                          style={{
+                            animationDelay: `${delay}s`,
+                            animationDuration: `${WAVE_SPEED}s`,
+                            '--wave-height': `${WAVE_HEIGHT}px`
+                          } as React.CSSProperties}
+                        >
+                          {char}
+                        </span>
+                      )
+                    })}
+                    {sentenceIndex < array.length - 1 && (
+                      <>
+                        <span
+                          className="wave-char"
+                          style={{
+                            animationDelay: `${charIndex++ * WAVE_DELAY}s`,
+                            animationDuration: `${WAVE_SPEED}s`,
+                            '--wave-height': `${WAVE_HEIGHT}px`
+                          } as React.CSSProperties}
+                        >
+                          .
+                        </span>
+                        <br />
+                      </>
+                    )}
                   </span>
-                )
-              })}
+                ))
+              })()}
             </p>
           )}
         </div>
