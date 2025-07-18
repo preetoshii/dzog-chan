@@ -458,10 +458,7 @@ html, body {
               opacity 0.2s ease;
 }
 
-/* Dim entire input wrapper when focused */
-.input-wrapper:has(.input-field:focus) {
-  opacity: 0.4;
-}
+/* Remove dimming from input wrapper */
 
 .input-wrapper.voice-mode {
   width: 3.5rem;
@@ -550,28 +547,43 @@ html, body {
   transition: color 0.3s ease-out;
 }
 
-/* Remove individual placeholder dimming on focus */
-.input-field:focus::placeholder {
-  /* Let parent handle the dimming */
-}
-
-/* Placeholder word overlay - positioned after "respond " */
-.placeholder-word-overlay {
+/* Placeholder wrapper for both static and dynamic text */
+.placeholder-wrapper {
   position: absolute;
-  left: 5.5rem; /* Position after "respond " */
+  left: 1.5rem;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease;
 }
 
-.dark .placeholder-word-overlay {
+/* Dim placeholder wrapper when input is focused */
+.input-wrapper:has(.input-field:focus) .placeholder-wrapper {
+  opacity: 0.35;
+}
+
+.dark .placeholder-wrapper {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.light .placeholder-word-overlay {
+.light .placeholder-wrapper {
   color: rgba(0, 0, 0, 0.4);
 }
+
+.placeholder-static {
+  /* Static "respond " text */
+}
+
+/* Placeholder word overlay - positioned inline */
+.placeholder-word-overlay {
+  display: inline-block;
+  position: relative;
+}
+
+/* Color inherited from placeholder-wrapper */
 
 .placeholder-changing {
   transition: opacity 0.5s ease-in-out;

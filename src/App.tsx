@@ -700,10 +700,13 @@ function App() {
           style={voiceMode && !isProcessing ? { transform: `scale(${1 + audioLevel * 0.6})` } : {}}
         >
           {!input && !voiceMode && (
-            <div className="placeholder-word-overlay">
-              <span className={`placeholder-changing ${!placeholderVisible ? 'fade' : ''}`}>
-                {placeholderWords[placeholderIndex]}
-              </span>
+            <div className="placeholder-wrapper">
+              <span className="placeholder-static">respond </span>
+              <div className="placeholder-word-overlay">
+                <span className={`placeholder-changing ${!placeholderVisible ? 'fade' : ''}`}>
+                  {placeholderWords[placeholderIndex]}
+                </span>
+              </div>
             </div>
           )}
           <input
@@ -715,7 +718,7 @@ function App() {
                 playClickSound()
               }
             }}
-            placeholder={input || voiceMode ? "" : "respond"}
+            placeholder=""
             className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
