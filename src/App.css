@@ -126,6 +126,7 @@
   opacity: 0;
   line-height: 1.6;
   visibility: hidden;
+  font-weight: 300;
 }
 
 .response.fade-in {
