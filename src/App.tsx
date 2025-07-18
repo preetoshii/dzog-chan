@@ -347,13 +347,13 @@ function App() {
     if (showResponse && response && response !== '[PRAYER_HANDS]') {
       fadeToTriangleTimerRef.current = setTimeout(() => {
         setIsFadingOut(true)
-        // Show triangle immediately to fade in while text fades out
-        setResponse('[PRAYER_HANDS]')
+        // Show triangle to fade in while text fades out
         setShowTriangleAfterDelay(true)
-        setResponseKey(prev => prev + 1)
         // Clean up after fade completes
         setTimeout(() => {
           setIsFadingOut(false)
+          setResponse('[PRAYER_HANDS]')
+          setResponseKey(prev => prev + 1)
         }, 8000) // Match fade out duration
       }, 20000) // 20 seconds
     }
