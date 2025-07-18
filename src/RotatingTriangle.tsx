@@ -44,7 +44,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         <path 
           d="M72 8 L128 108 L16 108 Z" 
           stroke="currentColor" 
-          strokeWidth="2.2" 
+          strokeWidth="1.9" 
           strokeLinejoin="round"
           strokeLinecap="round"
         />
