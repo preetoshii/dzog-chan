@@ -14,6 +14,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [faceTransform, setFaceTransform] = useState({ x: 0, y: 0, rotate: 0 })
   const [isHovered, setIsHovered] = useState(false)
   const [isPoked, setIsPoked] = useState(false)
+  const [showPokedFace, setShowPokedFace] = useState(false)
   const [currentPokedAudio, setCurrentPokedAudio] = useState<HTMLAudioElement | null>(null)
   const [recentSounds, setRecentSounds] = useState<string[]>([]) // Track last 3 played sounds
   
@@ -71,6 +72,10 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     setIsPoked(true)
     setTimeout(() => setIsPoked(false), 200)
     
+    // Show poked face expression
+    setShowPokedFace(true)
+    setTimeout(() => setShowPokedFace(false), 100) // Show for 100ms
+    
     // Play sounds
     playPokedSounds()
   }
@@ -124,7 +129,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       </svg>
       {/* Face in center - not rotating */}
       <img 
-        src={dzogChanFace}
+        src={showPokedFace ? '/zog-chan-poked.svg' : dzogChanFace}
         alt=""
         width={size * 0.3} 
         height={size * 0.3} 
