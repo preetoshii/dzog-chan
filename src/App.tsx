@@ -118,10 +118,10 @@ function App() {
         }
       }
       
-      // Show UI elements 1 second after text starts fading in
+      // Show UI elements 0.5 seconds after text starts fading in
       setTimeout(() => {
         setShowUI(true)
-      }, 1000)
+      }, 500)
     }, 500)
   }
 
