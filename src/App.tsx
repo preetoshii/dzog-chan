@@ -98,6 +98,40 @@ function App() {
     }, 500)
   }
 
+  const handleTriangleClick = async () => {
+    // Get a new initial guidance
+    const newGuidance = getRandomGuidance()
+    
+    // Fade out current display
+    if (showTriangleAfterDelay || response === '[PRAYER_HANDS]') {
+      setIsTriangleFadingOut(true)
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      setIsTriangleFadingOut(false)
+      setShowTriangleAfterDelay(false)
+    }
+    
+    // Set new response
+    setResponse(newGuidance)
+    setShowResponse(true)
+    setResponseKey(prev => prev + 1)
+    setLastResponseTime(Date.now())
+    
+    // Add to conversation history
+    setConversationHistory(prev => [...prev, { role: 'assistant', content: newGuidance }])
+    
+    // Play audio if not muted
+    if (!isMuted) {
+      try {
+        const audioBuffer = await generateSpeech(newGuidance)
+        if (audioBuffer) {
+          await playAudio(audioBuffer)
+        }
+      } catch (error) {
+        console.error('Error playing guidance:', error)
+      }
+    }
+  }
+
   const processInput = useCallback(async (inputText: string) => {
     setInputFading(true)
     setIsProcessing(true)
@@ -553,7 +587,7 @@ function App() {
           {/* Show triangle - either standalone or fading in during transition */}
           {((response === '[PRAYER_HANDS]' && showResponse) || showTriangleAfterDelay || isTriangleFadingOut) && (
             <div className={`response ${showTriangleAfterDelay ? 'fade-in-slow' : 'fade-in'} ${isTriangleFadingOut ? 'fade-out-quick' : ''}`} key={`triangle-${responseKey}`}>
-              <RotatingTriangle />
+              <RotatingTriangle onClick={handleTriangleClick} />
             </div>
           )}
         </div>
