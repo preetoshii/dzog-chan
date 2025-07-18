@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import './RotatingTriangle.css'
 import dzogChanFace from './assets/dzog-chan-face.svg'
 import { POKED_SOUNDS } from './poked-sounds'
+import { DRAGGED_SOUNDS } from './dragged-sounds'
 import { triggerHaptic } from './utils/haptic'
 
 interface RotatingTriangleProps {
@@ -18,6 +19,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [showPokedFace, setShowPokedFace] = useState(false)
   const [currentPokedAudio, setCurrentPokedAudio] = useState<HTMLAudioElement | null>(null)
   const [recentSounds, setRecentSounds] = useState<string[]>([]) // Track last 3 played sounds
+  const [currentDraggedAudio, setCurrentDraggedAudio] = useState<HTMLAudioElement | null>(null)
+  const [recentDragSounds, setRecentDragSounds] = useState<string[]>([]) // Track last 3 played drag sounds
+  const dragSoundIntervalRef = useRef<number | null>(null)
   
   // Drag state
   const [isDragging, setIsDragging] = useState(false)
@@ -71,6 +75,39 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     }, 50) // 50ms delay
   }
   
+  // Play random drag sound
+  const playDragSound = () => {
+    if (isMuted || DRAGGED_SOUNDS.length === 0) return
+    
+    // Stop current drag sound if playing
+    if (currentDraggedAudio) {
+      currentDraggedAudio.pause()
+      currentDraggedAudio.currentTime = 0
+    }
+    
+    // Filter out sounds that were played in the last 3 times
+    const availableSounds = DRAGGED_SOUNDS.filter(sound => !recentDragSounds.includes(sound))
+    
+    // If all sounds have been played recently, allow all sounds again
+    const soundPool = availableSounds.length > 0 ? availableSounds : DRAGGED_SOUNDS
+    
+    // Pick a random sound from the available pool
+    const randomIndex = Math.floor(Math.random() * soundPool.length)
+    const randomSound = soundPool[randomIndex]
+    
+    // Update recent sounds list (keep only last 3)
+    setRecentDragSounds(prev => {
+      const newRecent = [randomSound, ...prev].slice(0, 3)
+      return newRecent
+    })
+    
+    // Play the sound
+    const dragAudio = new Audio(`/sounds/dragged/${randomSound}`)
+    dragAudio.volume = 0.6
+    setCurrentDraggedAudio(dragAudio)
+    dragAudio.play().catch(err => console.log(`Drag sound ${randomSound} error:`, err))
+  }
+  
   const handleClick = () => {
     // Only trigger click if we didn't just drag
     if (!isDragging && !justDragged) {
@@ -107,6 +144,12 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     dragTimeoutRef.current = window.setTimeout(() => {
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
+      
+      // Start playing drag sounds at random intervals
+      playDragSound() // Play first sound immediately
+      dragSoundIntervalRef.current = window.setInterval(() => {
+        playDragSound()
+      }, Math.random() * 3000 + 5000) // Random between 5-8 seconds
     }, 150)
     
     // Add temporary listeners for mouse up to cancel drag start
@@ -133,6 +176,12 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     dragTimeoutRef.current = window.setTimeout(() => {
       setIsDragging(true)
       triggerHaptic(20) // Slightly longer haptic for drag start
+      
+      // Start playing drag sounds at random intervals
+      playDragSound() // Play first sound immediately
+      dragSoundIntervalRef.current = window.setInterval(() => {
+        playDragSound()
+      }, Math.random() * 3000 + 5000) // Random between 5-8 seconds
     }, 150)
     
     // Add temporary listeners for touch end to cancel drag start
@@ -185,6 +234,17 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         setDragPosition({ x: 0, y: 0 })
       }, 0)
       triggerHaptic(10) // Small haptic on release
+      
+      // Stop drag sound interval
+      if (dragSoundIntervalRef.current) {
+        clearInterval(dragSoundIntervalRef.current)
+        dragSoundIntervalRef.current = null
+      }
+      // Stop current drag sound
+      if (currentDraggedAudio) {
+        currentDraggedAudio.pause()
+        currentDraggedAudio.currentTime = 0
+      }
     }
   }
   
@@ -204,6 +264,17 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         setDragPosition({ x: 0, y: 0 })
       }, 0)
       triggerHaptic(10) // Small haptic on release
+      
+      // Stop drag sound interval
+      if (dragSoundIntervalRef.current) {
+        clearInterval(dragSoundIntervalRef.current)
+        dragSoundIntervalRef.current = null
+      }
+      // Stop current drag sound
+      if (currentDraggedAudio) {
+        currentDraggedAudio.pause()
+        currentDraggedAudio.currentTime = 0
+      }
     } else {
       // It was a tap, not a drag
       handleClick()
@@ -247,6 +318,21 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
       }
     }
   }, [isDragging, dragStart, initialDragOffset])
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (dragSoundIntervalRef.current) {
+        clearInterval(dragSoundIntervalRef.current)
+      }
+      if (currentDraggedAudio) {
+        currentDraggedAudio.pause()
+      }
+      if (currentPokedAudio) {
+        currentPokedAudio.pause()
+      }
+    }
+  }, [])
   return (
     <div className="triangle-float-wrapper">
       <div 
