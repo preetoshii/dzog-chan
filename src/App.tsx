@@ -587,7 +587,23 @@ function App() {
         <div className="response-container">
           {/* Show text that might be fading out */}
           {response && response !== '[PRAYER_HANDS]' && (showResponse || isFadingOut) && (
-            <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? `fade-out-${fadeOutType}` : ''}`} key={`text-${responseKey}`}>
+            <div 
+              className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? `fade-out-${fadeOutType}` : ''}`} 
+              key={`text-${responseKey}`}
+              onClick={async () => {
+                // Fade out text and show triangle
+                triggerHaptic(10)
+                setFadeOutType('quick')
+                setIsFadingOut(true)
+                await new Promise(resolve => setTimeout(resolve, 1500))
+                setIsFadingOut(false)
+                setShowResponse(false)
+                setResponse('[PRAYER_HANDS]')
+                setShowTriangleAfterDelay(true)
+                setResponseKey(prev => prev + 1)
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <p>
                 {(() => {
                   let charIndex = 0
