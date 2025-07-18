@@ -476,7 +476,7 @@ function App() {
             aria-label="Begin"
             disabled={isStarting}
           >
-            hello dzog-chan
+            hello zog-chan
           </button>
         </>
       )}
