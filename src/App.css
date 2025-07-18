@@ -565,10 +565,21 @@ html, body {
 
 .dark .placeholder-word-overlay {
   color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease;
 }
 
 .light .placeholder-word-overlay {
   color: rgba(0, 0, 0, 0.4);
+  transition: color 0.2s ease;
+}
+
+/* Fade overlay when input is focused */
+.dark .input-wrapper:has(.input-field:focus) .placeholder-word-overlay {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.light .input-wrapper:has(.input-field:focus) .placeholder-word-overlay {
+  color: rgba(0, 0, 0, 0.15);
 }
 
 .placeholder-changing {
