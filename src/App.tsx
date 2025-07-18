@@ -36,7 +36,8 @@ function App() {
   const [isStarting, setIsStarting] = useState(false)
   const placeholderWords = ['honestly', 'with curiosity', 'sincerely', 'openly', 'freely']
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
-  const [placeholderFading, setPlaceholderFading] = useState(false)
+  const [nextPlaceholderIndex, setNextPlaceholderIndex] = useState(0)
+  const [placeholderTransitioning, setPlaceholderTransitioning] = useState(false)
   const [offTopicCount, setOffTopicCount] = useState(0)
   
   // Detect if mobile device
@@ -485,18 +486,20 @@ function App() {
     }
   }, [showResponse, response])
 
-  // Rotate placeholder text with fade effect
+  // Rotate placeholder text with crossfade effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setPlaceholderFading(true)
+      setNextPlaceholderIndex((placeholderIndex + 1) % placeholderWords.length)
+      setPlaceholderTransitioning(true)
+      
       setTimeout(() => {
         setPlaceholderIndex(prev => (prev + 1) % placeholderWords.length)
-        setPlaceholderFading(false)
-      }, 250) // Half of the fade duration
-    }, 3000) // Change every 3 seconds
+        setPlaceholderTransitioning(false)
+      }, 800) // Duration of crossfade
+    }, 5000) // Change every 5 seconds
 
     return () => clearInterval(interval)
-  }, [])
+  }, [placeholderIndex])
 
   // Handle mouse movement for button visibility
   useEffect(() => {
@@ -664,12 +667,27 @@ function App() {
           className={`input-wrapper ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
           style={voiceMode && !isProcessing ? { transform: `scale(${1 + audioLevel * 0.6})` } : {}}
         >
+          {!input && !voiceMode && (
+            <div className="placeholder-overlay">
+              <span className="placeholder-static">respond </span>
+              <span className="placeholder-dynamic">
+                <span className={`placeholder-word ${!placeholderTransitioning ? 'active' : ''}`}>
+                  {placeholderWords[placeholderIndex]}
+                </span>
+                {placeholderTransitioning && (
+                  <span className="placeholder-word transitioning">
+                    {placeholderWords[nextPlaceholderIndex]}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`respond ${placeholderWords[placeholderIndex]}`}
-            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''} ${placeholderFading ? 'placeholder-fading' : ''}`}
+            placeholder={input || voiceMode ? "" : "respond honestly"}
+            className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
               borderColor: isDark 

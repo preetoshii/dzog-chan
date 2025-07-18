@@ -558,9 +558,56 @@ html, body {
   transition: opacity 0.5s ease-in-out;
 }
 
-/* Placeholder fading animation */
-.input-field.placeholder-fading::placeholder {
-  opacity: 0 !important;
+/* Custom placeholder overlay */
+.placeholder-overlay {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 1rem;
+  display: flex;
+  align-items: baseline;
+}
+
+.dark .placeholder-overlay {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light .placeholder-overlay {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.placeholder-static {
+  /* Static "respond" part */
+}
+
+.placeholder-dynamic {
+  position: relative;
+  display: inline-block;
+  height: 1.2em;
+}
+
+.placeholder-word {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  transition: opacity 0.8s ease-in-out;
+  opacity: 0;
+}
+
+.placeholder-word.active {
+  opacity: 1;
+}
+
+.placeholder-word.transitioning {
+  opacity: 1;
+}
+
+/* Hide native placeholder when we have custom overlay */
+.input-wrapper:has(.placeholder-overlay) .input-field::placeholder {
+  opacity: 0;
 }
 
 /* Hide placeholder when typing */
