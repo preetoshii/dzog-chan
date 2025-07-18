@@ -431,7 +431,7 @@ function App() {
           setShowTriangleAfterDelay(true)
           setResponseKey(prev => prev + 1)
         }, 8000) // After fade out completes
-      }, 20000) // 20 seconds
+      }, 45000) // 45 seconds
     }
 
     return () => {
