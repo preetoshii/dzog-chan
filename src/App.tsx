@@ -27,6 +27,7 @@ function App() {
   const [responseKey, setResponseKey] = useState(0)
   const [isFadingOut, setIsFadingOut] = useState(false)
   const [lastResponseTime, setLastResponseTime] = useState<number>(Date.now())
+  const [showTriangleAfterDelay, setShowTriangleAfterDelay] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -42,6 +43,7 @@ function App() {
   const animationFrameRef = useRef<number | null>(null)
   const voiceModeRef = useRef(false)
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const fadeToTriangleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Log the prompt on component mount and whenever it changes
   useEffect(() => {
@@ -120,6 +122,7 @@ function App() {
       setShowResponse(true)
       setResponseKey(prev => prev + 1)
       setLastResponseTime(Date.now())
+      setShowTriangleAfterDelay(false)
       
       // Generate and play voice response if not muted and not just prayer hands
       if (!isMuted && finalResponse !== '[PRAYER_HANDS]') {
@@ -333,6 +336,35 @@ function App() {
       }
     }
   }, [voiceMode, isListening, isProcessing, isPlayingAudio, showResponse, startListening, isMobile])
+
+  // Timer to fade to triangle after 20 seconds
+  useEffect(() => {
+    if (fadeToTriangleTimerRef.current) {
+      clearTimeout(fadeToTriangleTimerRef.current)
+    }
+
+    // Only start timer if we have text response showing (not triangle)
+    if (showResponse && response && response !== '[PRAYER_HANDS]') {
+      fadeToTriangleTimerRef.current = setTimeout(() => {
+        setIsFadingOut(true)
+        // After fade out completes, show triangle
+        setTimeout(() => {
+          setIsFadingOut(false)
+          setShowResponse(false)
+          setResponse('[PRAYER_HANDS]')
+          setShowTriangleAfterDelay(true)
+          setShowResponse(true)
+          setResponseKey(prev => prev + 1)
+        }, 1500) // Match fade out duration
+      }, 20000) // 20 seconds
+    }
+
+    return () => {
+      if (fadeToTriangleTimerRef.current) {
+        clearTimeout(fadeToTriangleTimerRef.current)
+      }
+    }
+  }, [showResponse, response])
 
   return (
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
