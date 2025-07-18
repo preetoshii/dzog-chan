@@ -1,3 +1,13 @@
+/* Global tap highlight removal */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, textarea {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
 .container {
   min-height: 100vh;
   display: flex;
@@ -37,6 +47,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .dark .dark-mode-toggle {
@@ -96,6 +110,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .dark .mute-toggle {
@@ -325,6 +343,9 @@
               border-color 0.2s linear,
               box-shadow 0.2s linear;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .input-field.voice-mode {
@@ -424,6 +445,10 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .dark .voice-button {
