@@ -37,6 +37,7 @@ function App() {
   const placeholderWords = ['honestly', 'with curiosity', 'sincerely', 'openly', 'freely']
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderFading, setPlaceholderFading] = useState(false)
+  const [offTopicCount, setOffTopicCount] = useState(0)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -200,7 +201,7 @@ function App() {
       const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
         ...recentHistory,
-        { role: "user", content: `[Response time: ${responseTimeInSeconds}s] ${inputText}` }
+        { role: "user", content: `[Response time: ${responseTimeInSeconds}s] [Off-topic count: ${offTopicCount}] ${inputText}` }
       ]
 
       const completion = await openai.chat.completions.create({
@@ -211,8 +212,25 @@ function App() {
       })
 
       const answer = completion.choices[0].message.content || ''
-      // If response is empty or just whitespace, show namaste gesture
-      const finalResponse = answer.trim() === '' ? '[PRAYER_HANDS]' : answer
+      
+      // Check if the AI response indicates the user was off-topic
+      let finalResponse: string
+      if (answer.includes('[OFF_TOPIC]')) {
+        setOffTopicCount(prev => prev + 1)
+        // Remove the marker from the actual response
+        const cleanAnswer = answer.replace('[OFF_TOPIC]', '').trim()
+        finalResponse = cleanAnswer === '' ? '[PRAYER_HANDS]' : cleanAnswer
+      } else if (answer.includes('[EARNEST]')) {
+        // Reset off-topic count if user is being earnest again
+        setOffTopicCount(0)
+        const cleanAnswer = answer.replace('[EARNEST]', '').trim()
+        finalResponse = cleanAnswer === '' ? '[PRAYER_HANDS]' : cleanAnswer
+      } else {
+        // Normal response
+        finalResponse = answer.trim() === '' ? '[PRAYER_HANDS]' : answer
+      }
+      
+      setResponse(finalResponse)
       
       // Update conversation history
       setConversationHistory(prev => [
@@ -221,7 +239,6 @@ function App() {
         { role: "assistant", content: answer } // Store original response, not emoji
       ])
       
-      setResponse(finalResponse)
       setShowResponse(true)
       setResponseKey(prev => prev + 1)
       setLastResponseTime(Date.now())
