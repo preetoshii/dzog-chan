@@ -165,7 +165,7 @@
 /* Wave animation for individual characters */
 .wave-char {
   display: inline-block;
-  animation: wave 3s ease-in-out infinite;
+  animation: wave 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes wave {

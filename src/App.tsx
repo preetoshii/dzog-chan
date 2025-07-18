@@ -29,9 +29,9 @@ function App() {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   
   // Wave effect configuration
-  const WAVE_HEIGHT = 4 // pixels - controls how high characters float
-  const WAVE_SPEED = 3 // seconds - duration of one complete wave cycle
-  const WAVE_DELAY = 0.05 // seconds - delay between each character
+  const WAVE_HEIGHT = 2 // pixels - controls how high characters float
+  const WAVE_SPEED = 4 // seconds - duration of one complete wave cycle
+  const WAVE_DELAY = 0.03 // seconds - delay between each character
   
   const recognitionRef = useRef<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
