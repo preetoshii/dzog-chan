@@ -242,10 +242,10 @@
   font-size: 1rem;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s linear,
               border-width 0.05s linear,
-              border-color 0.1s linear,
-              box-shadow 0.1s linear;
+              border-color 0.2s linear,
+              box-shadow 0.2s linear;
   outline: none;
 }
 
@@ -258,8 +258,8 @@
 .input-field.processing {
   border-color: rgba(128, 128, 128, 0.3) !important;
   box-shadow: none !important;
-  transition: border-color 0.1s linear,
-              box-shadow 0.1s linear !important;
+  transition: border-color 0.2s linear,
+              box-shadow 0.2s linear !important;
 }
 
 .input-wrapper.processing {

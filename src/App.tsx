@@ -25,6 +25,7 @@ function App() {
   const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
   const [responseKey, setResponseKey] = useState(0)
   const [isFadingOut, setIsFadingOut] = useState(false)
+  const [lastResponseTime, setLastResponseTime] = useState<number>(Date.now())
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -67,6 +68,10 @@ function App() {
     setInputFading(true)
     setIsProcessing(true)
     
+    // Calculate response time
+    const responseTime = Date.now() - lastResponseTime
+    const responseTimeInSeconds = Math.round(responseTime / 1000)
+    
     // If there's an existing response, fade it out first
     if (response && showResponse) {
       setIsFadingOut(true)
@@ -89,7 +94,7 @@ function App() {
       const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
         ...recentHistory,
-        { role: "user", content: inputText }
+        { role: "user", content: `[Response time: ${responseTimeInSeconds}s] ${inputText}` }
       ]
 
       const completion = await openai.chat.completions.create({
@@ -113,6 +118,7 @@ function App() {
       setResponse(finalResponse)
       setShowResponse(true)
       setResponseKey(prev => prev + 1)
+      setLastResponseTime(Date.now())
       
       // Generate and play voice response if not muted and not just prayer hands
       if (!isMuted && finalResponse !== '[PRAYER_HANDS]') {
@@ -141,7 +147,7 @@ function App() {
     } finally {
       setIsProcessing(false)
     }
-  }, [response, conversationHistory, isMuted, isListening, isPlayingAudio, showResponse])
+  }, [response, conversationHistory, isMuted, isListening, isPlayingAudio, showResponse, lastResponseTime])
 
   const startAudioVisualization = async () => {
     try {
