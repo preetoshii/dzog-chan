@@ -24,6 +24,7 @@ function App() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
   const [responseKey, setResponseKey] = useState(0)
+  const [isFadingOut, setIsFadingOut] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -65,10 +66,13 @@ function App() {
     setIsProcessing(true)
     
     // If there's an existing response, fade it out first
-    if (response) {
+    if (response && showResponse) {
+      setIsFadingOut(true)
+      // Wait for fade out animation (1.5s as defined in CSS)
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      setIsFadingOut(false)
       setShowResponse(false)
-      // Wait for partial fade out before continuing (don't wait for full animation)
-      await new Promise(resolve => setTimeout(resolve, 800))
+      setResponse('') // Clear response after fade completes
     }
     
     // Clear input after fade starts
@@ -135,7 +139,7 @@ function App() {
     } finally {
       setIsProcessing(false)
     }
-  }, [response, conversationHistory, isMuted, isListening, isPlayingAudio])
+  }, [response, conversationHistory, isMuted, isListening, isPlayingAudio, showResponse])
 
   const startAudioVisualization = async () => {
     try {
@@ -356,8 +360,8 @@ function App() {
 
       <div className="content">
         <div className="response-container">
-          {response && (
-            <div className={`response ${showResponse ? 'fade-in' : ''}`} key={responseKey}>
+          {(response || isFadingOut) && (
+            <div className={`response ${showResponse && !isFadingOut ? 'fade-in' : ''} ${isFadingOut ? 'fade-out' : ''}`} key={responseKey}>
               {response === '[PRAYER_HANDS]' ? (
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
                   {/* Left hand */}

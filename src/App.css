@@ -139,6 +139,8 @@
 
 .response.fade-out {
   animation: fadeOut 1.5s ease-out forwards;
+  visibility: visible;
+  opacity: 1;
 }
 
 @media (min-width: 768px) {
