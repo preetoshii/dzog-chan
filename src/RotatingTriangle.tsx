@@ -13,13 +13,17 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [isHovered, setIsHovered] = useState(false)
   const [isPoked, setIsPoked] = useState(false)
   
-  // Play random poked sound
-  const playPokedSound = () => {
-    // Get random sound number (will need to update this based on how many files you add)
+  // Play sounds when poked
+  const playPokedSounds = () => {
+    // Play the hithurt sound
+    const hithurtAudio = new Audio('/sounds/hithurt.wav')
+    hithurtAudio.play().catch(err => console.log('Hithurt sound not found:', err))
+    
+    // Also play a random poked sound
     const soundCount = 5 // Update this when you add more sounds
     const randomNum = Math.floor(Math.random() * soundCount) + 1
-    const audio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
-    audio.play().catch(err => console.log('Sound not found yet:', err))
+    const pokedAudio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
+    pokedAudio.play().catch(err => console.log('Poked sound not found yet:', err))
   }
   
   const handleClick = () => {
@@ -31,8 +35,8 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     setIsPoked(true)
     setTimeout(() => setIsPoked(false), 200)
     
-    // Play sound
-    playPokedSound()
+    // Play sounds
+    playPokedSounds()
   }
   
   useEffect(() => {
