@@ -350,14 +350,13 @@ function App() {
       fadeToTriangleTimerRef.current = setTimeout(() => {
         setFadeOutType('slow')
         setIsFadingOut(true)
-        // Show triangle to fade in while text fades out
-        setShowTriangleAfterDelay(true)
-        // Clean up after fade completes
+        // Wait for text to fade out before showing triangle
         setTimeout(() => {
           setIsFadingOut(false)
           setResponse('[PRAYER_HANDS]')
+          setShowTriangleAfterDelay(true)
           setResponseKey(prev => prev + 1)
-        }, 8000) // Match fade out duration
+        }, 8000) // After fade out completes
       }, 20000) // 20 seconds
     }
 
