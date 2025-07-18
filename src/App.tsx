@@ -138,7 +138,12 @@ function App() {
     
     // Calculate response time
     const responseTime = Date.now() - lastResponseTime
-    const responseTimeInSeconds = Math.round(responseTime / 1000)
+    let responseTimeInSeconds = Math.round(responseTime / 1000)
+    
+    // If responding from triangle state, ensure response time is long enough
+    if (response === '[PRAYER_HANDS]' || showTriangleAfterDelay) {
+      responseTimeInSeconds = Math.max(responseTimeInSeconds, 10) // Force at least 10 seconds
+    }
     
     // If there's an existing response, fade it out first
     if (response && showResponse) {
