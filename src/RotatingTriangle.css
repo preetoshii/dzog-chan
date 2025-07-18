@@ -1,20 +1,19 @@
+/* Wrapper handles the float animation */
+.triangle-float-wrapper {
+  animation: float 6s ease-in-out infinite;
+}
+
 .rotating-triangle-container {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  animation: float 6s ease-in-out infinite;
   transition: transform 0.2s ease-out;
-}
-
-/* Hover effect - scale up slightly */
-.rotating-triangle-container.hovered {
-  transform: scale(1.1);
 }
 
 /* Poke effect - quick scale animation */
 .rotating-triangle-container.poked {
-  animation: float 6s ease-in-out infinite, poke 0.2s ease-out;
+  animation: poke 0.2s ease-out;
 }
 
 @keyframes poke {

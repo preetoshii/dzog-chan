@@ -12,18 +12,31 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
   const [faceTransform, setFaceTransform] = useState({ x: 0, y: 0, rotate: 0 })
   const [isHovered, setIsHovered] = useState(false)
   const [isPoked, setIsPoked] = useState(false)
+  const [currentPokedAudio, setCurrentPokedAudio] = useState<HTMLAudioElement | null>(null)
   
   // Play sounds when poked
-  const playPokedSounds = () => {
+  const playPokedSounds = async () => {
     // Play the hithurt sound
-    const hithurtAudio = new Audio('/sounds/hithurt.wav')
-    hithurtAudio.play().catch(err => console.log('Hithurt sound not found:', err))
+    const hithurtAudio = new Audio('/sounds/hitHurt.wav')
+    hithurtAudio.volume = 0.7 // Slightly lower volume to avoid clipping
+    hithurtAudio.play().catch(err => console.log('Hithurt sound error:', err))
     
-    // Also play a random poked sound
-    const soundCount = 5 // Update this when you add more sounds
-    const randomNum = Math.floor(Math.random() * soundCount) + 1
-    const pokedAudio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
-    pokedAudio.play().catch(err => console.log('Poked sound not found yet:', err))
+    // Stop current poked sound if playing
+    if (currentPokedAudio) {
+      currentPokedAudio.pause()
+      currentPokedAudio.currentTime = 0
+    }
+    
+    // Small delay to ensure both sounds can start properly
+    setTimeout(() => {
+      // Play a random poked sound
+      const soundCount = 5 // Update this when you add more sounds
+      const randomNum = Math.floor(Math.random() * soundCount) + 1
+      const pokedAudio = new Audio(`/sounds/poked/poked-${randomNum}.wav`)
+      pokedAudio.volume = 0.8
+      setCurrentPokedAudio(pokedAudio)
+      pokedAudio.play().catch(err => console.log('Poked sound not found yet:', err))
+    }, 50) // 50ms delay
   }
   
   const handleClick = () => {
@@ -60,13 +73,17 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
   return (
-    <div 
-      className={`rotating-triangle-container ${isHovered ? 'hovered' : ''} ${isPoked ? 'poked' : ''}`}
-      onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
-    >
+    <div className="triangle-float-wrapper">
+      <div 
+        className={`rotating-triangle-container ${isHovered ? 'hovered' : ''} ${isPoked ? 'poked' : ''}`}
+        onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ 
+          cursor: onClick ? 'pointer' : 'default',
+          transform: isHovered ? 'scale(1.1)' : 'scale(1)'
+        }}
+      >
       <svg 
         width={size} 
         height={size} 
@@ -99,6 +116,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
           transition: 'transform 0.3s ease-out'
         }}
       />
+      </div>
     </div>
   )
 }
