@@ -243,10 +243,12 @@ function App() {
     e.preventDefault()
     if (!input.trim()) return
     
-    // Blur the input to hide the keyboard on mobile
-    const inputElement = e.currentTarget.querySelector('input')
-    if (inputElement) {
-      inputElement.blur()
+    // Only blur the input on mobile to hide the keyboard
+    if (isMobile) {
+      const inputElement = e.currentTarget.querySelector('input')
+      if (inputElement) {
+        inputElement.blur()
+      }
     }
     
     await processInput(input)
