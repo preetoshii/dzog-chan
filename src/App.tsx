@@ -592,7 +592,7 @@ function App() {
           {/* Show triangle - either standalone or fading in during transition */}
           {((response === '[PRAYER_HANDS]' && showResponse) || showTriangleAfterDelay || isTriangleFadingOut) && (
             <div className={`response ${showTriangleAfterDelay ? 'fade-in-slow' : 'fade-in'} ${isTriangleFadingOut ? 'fade-out-quick' : ''}`} key={`triangle-${responseKey}`}>
-              <RotatingTriangle onClick={handleTriangleClick} />
+              <RotatingTriangle onClick={handleTriangleClick} isDark={isDark} />
             </div>
           )}
         </div>
