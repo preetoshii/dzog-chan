@@ -95,7 +95,7 @@ function App() {
 
       const answer = completion.choices[0].message.content || ''
       // If response is empty or just whitespace, show namaste gesture
-      const finalResponse = answer.trim() === '' ? '🙏' : answer
+      const finalResponse = answer.trim() === '' ? '[PRAYER_HANDS]' : answer
       
       // Update conversation history
       setConversationHistory(prev => [
@@ -108,8 +108,8 @@ function App() {
       setShowResponse(true)
       setResponseKey(prev => prev + 1)
       
-      // Generate and play voice response if not muted and not just emoji
-      if (!isMuted && finalResponse !== '🙏') {
+      // Generate and play voice response if not muted and not just prayer hands
+      if (!isMuted && finalResponse !== '[PRAYER_HANDS]') {
         // Stop listening while audio is playing to prevent feedback
         if (voiceModeRef.current && recognitionRef.current) {
           try {
@@ -357,10 +357,21 @@ function App() {
       <div className="content">
         <div className="response-container">
           {response && (
-            <p className={`response ${showResponse ? 'fade-in' : ''}`} key={responseKey}>
-              {(() => {
-                let charIndex = 0
-                return response.split('. ').map((sentence, sentenceIndex, array) => (
+            <div className={`response ${showResponse ? 'fade-in' : ''}`} key={responseKey}>
+              {response === '[PRAYER_HANDS]' ? (
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
+                  {/* Left hand */}
+                  <path d="M11 20V8c0-1.5-1.5-3-3-3s-3 1.5-3 3v7c0 1.5.5 3 2 4l4 3" />
+                  {/* Right hand */}
+                  <path d="M13 20V8c0-1.5 1.5-3 3-3s3 1.5 3 3v7c0 1.5-.5 3-2 4l-4 3" />
+                  {/* Thumbs */}
+                  <path d="M8 11L9 10M16 11L15 10" />
+                </svg>
+              ) : (
+                <p>
+                  {(() => {
+                    let charIndex = 0
+                    return response.split('. ').map((sentence, sentenceIndex, array) => (
                   <span key={sentenceIndex}>
                     {sentence.split('').map((char) => {
                       const currentCharIndex = charIndex++
@@ -404,8 +415,10 @@ function App() {
                     )}
                   </span>
                 ))
-              })()}
-            </p>
+                  })()}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>

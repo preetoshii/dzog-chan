@@ -127,6 +127,9 @@
   line-height: 1.6;
   visibility: hidden;
   font-weight: 300;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .response.fade-in {
