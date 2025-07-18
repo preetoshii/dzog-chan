@@ -258,13 +258,13 @@
 .input-field.processing {
   border-color: rgba(128, 128, 128, 0.3) !important;
   box-shadow: none !important;
-  transition: border-color 0.3s ease-out,
-              box-shadow 0.3s ease-out !important;
+  transition: border-color 0.1s linear,
+              box-shadow 0.1s linear !important;
 }
 
 .input-wrapper.processing {
   transform: scale(1) !important;
-  transition: transform 0.3s ease-out;
+  transition: transform 0.05s linear;
 }
 
 .dark .input-field {
