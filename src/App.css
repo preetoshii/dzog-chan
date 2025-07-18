@@ -674,4 +674,32 @@ html, body {
   opacity: 0.2;
 }
 
+/* Surprise moment styles */
+.surprise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.surprise-triangle {
+  animation: surprise-pulsate 0.12s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+@keyframes surprise-pulsate {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.3);
+  }
+}
+
 

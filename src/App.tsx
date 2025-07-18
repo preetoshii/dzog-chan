@@ -40,6 +40,8 @@ function App() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [offTopicCount, setOffTopicCount] = useState(0)
+  const [showSurprise, setShowSurprise] = useState(false)
+  const [lastSurpriseTime, setLastSurpriseTime] = useState<number>(0)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -62,6 +64,54 @@ function App() {
       })
     }
   }, [])
+  
+  // Trigger surprise moment
+  const triggerSurpriseMoment = useCallback(() => {
+    if (!hasStarted || showSurprise) return
+    
+    setShowSurprise(true)
+    setLastSurpriseTime(Date.now()) // Record when surprise occurred
+    
+    // Play jumpscare sound
+    if (!isMuted) {
+      const jumpscareAudio = new Audio('/sounds/jumpscare.wav')
+      jumpscareAudio.volume = 0.8
+      jumpscareAudio.play().catch(err => console.log('Jumpscare sound error:', err))
+    }
+    
+    // Trigger haptic if available
+    triggerHaptic(50)
+    
+    // Hide after 1 second
+    setTimeout(() => {
+      setShowSurprise(false)
+    }, 1000)
+  }, [hasStarted, showSurprise, isMuted])
+  
+  // Random surprise moments every minute with 50% chance
+  useEffect(() => {
+    if (!hasStarted) return
+    
+    const interval = setInterval(() => {
+      if (Math.random() < 0.5) {
+        triggerSurpriseMoment()
+      }
+    }, 60000) // Every 60 seconds
+    
+    return () => clearInterval(interval)
+  }, [hasStarted, triggerSurpriseMoment])
+  
+  // Debug: Backslash key to trigger surprise
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === '\\') {
+        triggerSurpriseMoment()
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [triggerSurpriseMoment])
   
   // Wave effect configuration
   const WAVE_HEIGHT = 3 // pixels - controls how high characters float
@@ -201,12 +251,16 @@ function App() {
     }, 300)
     
     try {
+      // Check if user is responding shortly after a surprise moment
+      const timeSinceSurprise = lastSurpriseTime ? Math.round((Date.now() - lastSurpriseTime) / 1000) : null
+      const surpriseInfo = timeSinceSurprise !== null && timeSinceSurprise <= 30 ? '[Surprise moment]' : ''
+      
       // Build messages array with history (keep last 10 messages to prevent token overflow)
       const recentHistory = conversationHistory.slice(-10)
       const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: "system", content: DZOGCHEN_SYSTEM_PROMPT },
         ...recentHistory,
-        { role: "user", content: `[Response time: ${responseTimeInSeconds}s] [Off-topic count: ${offTopicCount}] ${inputText}` }
+        { role: "user", content: `[Response time: ${responseTimeInSeconds}s] [Off-topic count: ${offTopicCount}] ${surpriseInfo} ${inputText}` }
       ]
 
       const completion = await openai.chat.completions.create({
@@ -746,6 +800,15 @@ function App() {
           </button>
         </div>
         </form>
+      )}
+      
+      {/* Surprise moment overlay */}
+      {showSurprise && (
+        <div className="surprise-overlay">
+          <div className="surprise-triangle">
+            <RotatingTriangle size={window.innerWidth > 768 ? 500 : 350} isDark={isDark} isMuted={isMuted} />
+          </div>
+        </div>
       )}
     </div>
   )
