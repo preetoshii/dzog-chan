@@ -31,6 +31,7 @@ function App() {
   const [fadeOutType, setFadeOutType] = useState<'quick' | 'slow'>('quick')
   const [isTriangleFadingOut, setIsTriangleFadingOut] = useState(false)
   const [showButtons, setShowButtons] = useState(false)
+  const [showUI, setShowUI] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -67,6 +68,10 @@ function App() {
     // Small delay before fading in for better effect
     setTimeout(() => {
       setShowResponse(true)
+      // Show UI elements 2 seconds after text starts fading in
+      setTimeout(() => {
+        setShowUI(true)
+      }, 2000)
     }, 500)
   }, [])
 
@@ -398,7 +403,7 @@ function App() {
     <div className={`container ${isDark ? 'dark' : 'light'}`}>
       <button
         onClick={() => setIsDark(!isDark)}
-        className={`dark-mode-toggle ${showButtons ? 'show' : ''}`}
+        className={`dark-mode-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
         aria-label="Toggle dark mode"
       >
         {isDark ? (
@@ -414,7 +419,7 @@ function App() {
 
       <button
         onClick={() => setIsMuted(!isMuted)}
-        className={`mute-toggle ${showButtons ? 'show' : ''}`}
+        className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
         aria-label="Toggle mute"
       >
         {isMuted ? (
@@ -516,7 +521,7 @@ function App() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className={`input-form ${voiceMode ? 'voice-mode' : ''}`}>
+      <form onSubmit={handleSubmit} className={`input-form ${voiceMode ? 'voice-mode' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}>
         <div 
           className={`input-wrapper ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
           style={voiceMode && !isProcessing ? { transform: `scale(${1 + audioLevel * 0.6})` } : {}}

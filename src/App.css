@@ -8,6 +8,27 @@ button, input, textarea {
   -webkit-touch-callout: none;
 }
 
+/* Initial UI fade-in animation */
+.ui-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.ui-fade-in {
+  animation: uiFadeIn 2s ease-in-out forwards;
+}
+
+@keyframes uiFadeIn {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 .container {
   min-height: 100vh;
   display: flex;
@@ -56,8 +77,11 @@ button, input, textarea {
 .dark .dark-mode-toggle {
   background-color: rgba(255, 255, 255, 0);
   color: rgba(255, 255, 255, 0.5);
-  opacity: 0.5;
   transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.dark .dark-mode-toggle.ui-fade-in:not(.show) {
+  opacity: 0.5;
 }
 
 .dark .dark-mode-toggle.show {
@@ -75,8 +99,11 @@ button, input, textarea {
 .light .dark-mode-toggle {
   background-color: rgba(0, 0, 0, 0);
   color: rgba(0, 0, 0, 0.5);
-  opacity: 0.5;
   transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.light .dark-mode-toggle.ui-fade-in:not(.show) {
+  opacity: 0.5;
 }
 
 .light .dark-mode-toggle.show {
@@ -119,8 +146,11 @@ button, input, textarea {
 .dark .mute-toggle {
   background-color: rgba(255, 255, 255, 0);
   color: rgba(255, 255, 255, 0.5);
-  opacity: 0.5;
   transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.dark .mute-toggle.ui-fade-in:not(.show) {
+  opacity: 0.5;
 }
 
 .dark .mute-toggle.show {
@@ -138,8 +168,11 @@ button, input, textarea {
 .light .mute-toggle {
   background-color: rgba(0, 0, 0, 0);
   color: rgba(0, 0, 0, 0.5);
-  opacity: 0.5;
   transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.light .mute-toggle.ui-fade-in:not(.show) {
+  opacity: 0.5;
 }
 
 .light .mute-toggle.show {
