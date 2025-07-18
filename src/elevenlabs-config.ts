@@ -15,7 +15,7 @@ export const VOICE_IDS = {
   sam: 'yoZ06aMxZJJ28mfd3POQ',
   
   // Add your custom voice ID here if you've cloned one
-  custom: '8NMmEzpBSm7LrTMYgxXD'
+  custom: 'D5TZi5xGzBoJjBT4GONI'
 }
 
 // Choose which voice to use
