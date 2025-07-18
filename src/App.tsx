@@ -616,7 +616,7 @@ function App() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Respond honestly"
+            placeholder="respond honestly"
             className={`input-field ${inputFading ? 'fading' : ''} ${voiceMode ? 'voice-mode' : ''} ${isProcessing ? 'processing' : ''}`}
             style={voiceMode && !isProcessing ? { 
               borderWidth: `${2 + audioLevel * 3}px`,
