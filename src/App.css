@@ -575,6 +575,7 @@ html, body {
 
 .placeholder-static {
   /* Static "respond " text */
+  margin-right: 0.25em;
 }
 
 /* Placeholder word overlay - positioned inline */

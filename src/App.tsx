@@ -36,7 +36,7 @@ function App() {
   const [showUI, setShowUI] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
-  const placeholderWords = ['honestly', 'with curiosity', 'sincerely', 'openly', 'freely']
+  const placeholderWords = ['honestly', 'with curiosity', 'sincerely', 'freely']
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [offTopicCount, setOffTopicCount] = useState(0)
@@ -118,10 +118,10 @@ function App() {
         }
       }
       
-      // Show UI elements 2 seconds after text starts fading in
+      // Show UI elements 1 second after text starts fading in
       setTimeout(() => {
         setShowUI(true)
-      }, 2000)
+      }, 1000)
     }, 500)
   }
 
