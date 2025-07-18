@@ -38,6 +38,14 @@ function App() {
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   
+  // Update theme color meta tag
+  useEffect(() => {
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', isDark ? '#000000' : '#ffffff')
+    }
+  }, [isDark])
+  
   // Wave effect configuration
   const WAVE_HEIGHT = 3 // pixels - controls how high characters float
   const WAVE_SPEED = 3.5 // seconds - duration of one complete wave cycle
