@@ -33,6 +33,7 @@ function App() {
   const [showButtons, setShowButtons] = useState(false)
   const [showUI, setShowUI] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -59,7 +60,12 @@ function App() {
 
   // Handle starting the experience
   const handleStart = async () => {
-    setHasStarted(true)
+    setIsStarting(true)
+    // Wait for animation to complete
+    setTimeout(() => {
+      setHasStarted(true)
+    }, 1500)
+    
     const initialGuidance = getRandomGuidance()
     // Set response but don't show it yet
     setResponse(initialGuidance)
@@ -421,8 +427,9 @@ function App() {
       {!hasStarted && (
         <button 
           onClick={handleStart}
-          className="start-button"
+          className={`start-button ${isStarting ? 'starting' : ''}`}
           aria-label="Begin"
+          disabled={isStarting}
         >
           Knock Knock
         </button>

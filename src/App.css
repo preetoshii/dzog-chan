@@ -74,6 +74,28 @@ button, input, textarea {
   transform: translateX(-50%) scale(1.05);
 }
 
+.start-button.starting {
+  animation: knockAnimation 1.5s ease-out forwards;
+  cursor: default;
+}
+
+@keyframes knockAnimation {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  20% {
+    transform: translateX(-50%) scale(1.15);
+  }
+  40% {
+    transform: translateX(-50%) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+}
+
 .container {
   min-height: 100vh;
   display: flex;
