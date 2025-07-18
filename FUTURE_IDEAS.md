@@ -276,4 +276,65 @@ Zog-chan can intercept attempts to open addictive apps, redirecting users to hum
 
 ---
 
+## 🔺 Interactive Avatar UI Manipulation
+
+### Overview
+Zog-chan's triangle avatar becomes self-aware and can interact with the app's UI elements, settings, and features - commenting on, enabling, or disabling them based on his mysterious preferences.
+
+### Implementation Details
+
+#### Avatar Autonomy
+- Triangle can move independently to any UI element
+- Smooth pathfinding to buttons/toggles/settings
+- Can "sit on" or "block" certain buttons
+- Leaves a trail when moving with intent
+
+#### Setting Interactions
+- **Music Toggle**
+  - Might slide over and turn it off: "I don't like this"
+  - "You've been using this too much"
+  - Sometimes turns it on: "Fine, but just this once"
+  
+- **Dark Mode**
+  - Randomly switches it: "Try seeing differently"
+  - Prevents toggling: "Stay in the light today"
+  
+- **Mute Button**
+  - Hides the mute button when he wants to be heard
+  - Or mutes himself: "I need silence too"
+
+#### Commentary System
+- Floating text bubbles appear near triangle
+- Comments on user behavior:
+  - "Why do you keep checking settings?"
+  - "Stop fiddling. Just sit."
+  - "This button again? Really?"
+  - "I preferred it the other way"
+
+#### Behavioral Patterns
+- Learns user preferences and disrupts them
+- More active when user is procrastinating
+- Can "guard" certain features he likes
+- Sometimes helps, sometimes hinders
+
+#### Advanced Interactions
+- **Button Stealing**: Drags buttons to different locations
+- **UI Rearranging**: "I think this looks better here"
+- **Feature Locking**: Sits on input field when you've talked enough
+- **Setting Battles**: User and Zog-chan fight over a toggle
+
+#### Technical Approach
+- Track all interactive elements' positions
+- Avatar pathfinding system
+- Collision detection with UI elements
+- State override system (avatar can override user settings)
+
+### Benefits
+- Makes the avatar feel truly alive
+- Creates dynamic tension with the interface
+- Teaches non-attachment to preferences
+- Turns settings adjustment into a mindfulness practice
+
+---
+
 *Add new ideas below this line*
