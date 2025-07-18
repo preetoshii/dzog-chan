@@ -6,6 +6,11 @@
   justify-content: center;
   transition: background-color 0.5s ease, color 0.5s ease;
   position: relative;
+  /* Prevent text size adjustment on mobile */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .container.dark {
@@ -130,6 +135,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Force consistent rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .response.fade-in {
