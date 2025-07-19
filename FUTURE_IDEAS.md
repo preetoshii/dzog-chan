@@ -20,7 +20,7 @@ When the user remains idle for an extended period, Zog-chan will spontaneously i
 #### Intelligent Selection
 - Use OpenAI to analyze conversation history
 - Select the most appropriate meditation based on:
-  - User's recent questions/concerns
+  - User's recent questions/concerns1
   - Emotional tone of the conversation
   - Time of day (if accessible)
   - Previous meditation history

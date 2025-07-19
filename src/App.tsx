@@ -6,6 +6,7 @@ import { generateSpeech, playAudio, stopCurrentAudio } from './elevenlabs-config
 import RotatingTriangle from './RotatingTriangle'
 import { triggerHaptic } from './utils/haptic'
 import { playClickSound, setMuted } from './utils/sounds'
+import { MUSIC_TRACKS } from './music-tracks'
 import './App.css'
 
 const openai = new OpenAI({
@@ -42,6 +43,9 @@ function App() {
   const [offTopicCount, setOffTopicCount] = useState(0)
   const [showSurprise, setShowSurprise] = useState(false)
   const [lastSurpriseTime, setLastSurpriseTime] = useState<number>(0)
+  const [isMusicOn, setIsMusicOn] = useState(false)
+  const [currentMusic, setCurrentMusic] = useState<HTMLAudioElement | null>(null)
+  const [recentMusicTracks, setRecentMusicTracks] = useState<string[]>([])
   
   // Detect if mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -113,6 +117,89 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [triggerSurpriseMoment])
   
+  // Music playback functions
+  const playNextTrack = useCallback(() => {
+    if (!isMusicOn || MUSIC_TRACKS.length === 0) return
+    
+    // Filter out recently played tracks
+    const availableTracks = MUSIC_TRACKS.filter(track => !recentMusicTracks.includes(track))
+    
+    // If all tracks have been played recently, allow all except the last one
+    const trackPool = availableTracks.length > 0 ? availableTracks : 
+      MUSIC_TRACKS.filter(track => track !== recentMusicTracks[0])
+    
+    if (trackPool.length === 0) return
+    
+    // Pick a random track
+    const randomIndex = Math.floor(Math.random() * trackPool.length)
+    const selectedTrack = trackPool[randomIndex]
+    
+    // Update recent tracks (keep last 2)
+    setRecentMusicTracks(prev => [selectedTrack, prev[0]].filter(Boolean).slice(0, 2))
+    
+    // Create and play new audio
+    const audio = new Audio(`/sounds/music/${selectedTrack}`)
+    audio.volume = 0
+    
+    // Fade in
+    audio.play().then(() => {
+      let fadeVolume = 0
+      const fadeInterval = setInterval(() => {
+        fadeVolume += 0.02
+        if (fadeVolume >= 0.6) {
+          audio.volume = 0.6
+          clearInterval(fadeInterval)
+        } else {
+          audio.volume = fadeVolume
+        }
+      }, 20)
+    }).catch(err => console.log('Music play error:', err))
+    
+    // Play next track when this one ends
+    audio.addEventListener('ended', () => {
+      playNextTrack()
+    })
+    
+    setCurrentMusic(audio)
+  }, [isMusicOn, recentMusicTracks])
+  
+  // Handle music toggle
+  const toggleMusic = useCallback(() => {
+    triggerHaptic(10)
+    playClickSound()
+    
+    const newMusicState = !isMusicOn
+    setIsMusicOn(newMusicState)
+    
+    if (newMusicState) {
+      // Start playing music
+      playNextTrack()
+    } else {
+      // Fade out and stop current music
+      if (currentMusic) {
+        let fadeVolume = currentMusic.volume
+        const fadeInterval = setInterval(() => {
+          fadeVolume -= 0.02
+          if (fadeVolume <= 0) {
+            currentMusic.pause()
+            currentMusic.currentTime = 0
+            setCurrentMusic(null)
+            clearInterval(fadeInterval)
+          } else {
+            currentMusic.volume = fadeVolume
+          }
+        }, 20)
+      }
+    }
+  }, [isMusicOn, currentMusic, playNextTrack])
+  
+  // Start music when toggled on
+  useEffect(() => {
+    if (isMusicOn && !currentMusic) {
+      playNextTrack()
+    }
+  }, [isMusicOn, currentMusic, playNextTrack])
+  
   // Wave effect configuration
   const WAVE_HEIGHT = 3 // pixels - controls how high characters float
   const WAVE_SPEED = 3.5 // seconds - duration of one complete wave cycle
@@ -161,7 +248,7 @@ function App() {
         try {
           const audioBuffer = await generateSpeech(initialGuidance)
           if (audioBuffer) {
-            await playAudio(audioBuffer)
+            await playAudio(audioBuffer, isMusicOn)
           }
         } catch (error) {
           console.error('Error playing initial guidance:', error)
@@ -202,7 +289,7 @@ function App() {
       try {
         const audioBuffer = await generateSpeech(newGuidance)
         if (audioBuffer) {
-          await playAudio(audioBuffer)
+          await playAudio(audioBuffer, isMusicOn)
         }
       } catch (error) {
         console.error('Error playing guidance:', error)
@@ -319,7 +406,7 @@ function App() {
         const audioBuffer = await generateSpeech(finalResponse)
         if (audioBuffer) {
           setIsPlayingAudio(true)
-          await playAudio(audioBuffer)
+          await playAudio(audioBuffer, isMusicOn) // Pass music state for reverb
           setIsPlayingAudio(false)
         }
       }
@@ -629,6 +716,13 @@ function App() {
           // Stop any currently playing audio when muting
           if (newMutedState) {
             stopCurrentAudio()
+            // Also stop music if playing
+            if (currentMusic) {
+              currentMusic.pause()
+              currentMusic.currentTime = 0
+              setCurrentMusic(null)
+              setIsMusicOn(false)
+            }
           }
         }}
         className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
@@ -644,6 +738,24 @@ function App() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
           </svg>
         )}
+        </button>
+      )}
+
+      {hasStarted && (
+        <button
+          onClick={toggleMusic}
+          className={`music-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
+          aria-label="Toggle music"
+        >
+          {isMusicOn ? (
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+          ) : (
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+          )}
         </button>
       )}
 
