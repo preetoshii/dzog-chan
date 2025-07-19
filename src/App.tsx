@@ -4,6 +4,7 @@ import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
 import { getRandomGuidance } from './initial-guidance'
 import { generateSpeech, playAudio, stopCurrentAudio } from './elevenlabs-config'
 import RotatingTriangle from './RotatingTriangle'
+import ToggleButton from './components/ToggleButton'
 import { triggerHaptic } from './utils/haptic'
 import { playClickSound, setMuted } from './utils/sounds'
 import { MUSIC_TRACKS } from './music-tracks'
@@ -684,79 +685,83 @@ function App() {
         </>
       )}
       {hasStarted && (
-        <button
+        <ToggleButton
+          icon={
+            isDark ? (
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )
+          }
           onClick={() => {
             triggerHaptic(10)
             playClickSound()
             setIsDark(!isDark)
           }}
-          className={`dark-mode-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
-          aria-label="Toggle dark mode"
-        >
-        {isDark ? (
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        ) : (
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        )}
-        </button>
+          position={0}
+          ariaLabel="Toggle dark mode"
+          showAlways={showButtons}
+          className={showUI ? '' : 'ui-hidden'}
+        />
       )}
 
       {hasStarted && (
-        <button
-        onClick={() => {
-          triggerHaptic(10)
-          playClickSound()
-          const newMutedState = !isMuted
-          setIsMuted(newMutedState)
-          setMuted(newMutedState) // Sync with sound utilities
-          // Stop any currently playing audio when muting
-          if (newMutedState) {
-            stopCurrentAudio()
-            // Also stop music if playing
-            if (currentMusic) {
-              currentMusic.pause()
-              currentMusic.currentTime = 0
-              setCurrentMusic(null)
-              setIsMusicOn(false)
-            }
+        <ToggleButton
+          icon={
+            isMuted ? (
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            ) : (
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            )
           }
-        }}
-        className={`mute-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
-        aria-label="Toggle mute"
-      >
-        {isMuted ? (
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-          </svg>
-        ) : (
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-          </svg>
-        )}
-        </button>
+          onClick={() => {
+            triggerHaptic(10)
+            playClickSound()
+            const newMutedState = !isMuted
+            setIsMuted(newMutedState)
+            setMuted(newMutedState) // Sync with sound utilities
+            // Stop any currently playing audio when muting
+            if (newMutedState) {
+              stopCurrentAudio()
+              // Also stop music if playing
+              if (currentMusic) {
+                currentMusic.pause()
+                currentMusic.currentTime = 0
+                setCurrentMusic(null)
+                setIsMusicOn(false)
+              }
+            }
+          }}
+          position={1}
+          ariaLabel="Toggle mute"
+          showAlways={showButtons}
+          className={showUI ? '' : 'ui-hidden'}
+        />
       )}
 
       {hasStarted && (
-        <button
+        <ToggleButton
+          icon={
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+          }
           onClick={toggleMusic}
-          className={`music-toggle ${showButtons ? 'show' : ''} ${showUI ? 'ui-fade-in' : 'ui-hidden'}`}
-          aria-label="Toggle music"
-        >
-          {isMusicOn ? (
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
-          ) : (
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
-          )}
-        </button>
+          position={2}
+          ariaLabel="Toggle music"
+          isActive={isMusicOn}
+          showAlways={showButtons}
+          className={showUI ? '' : 'ui-hidden'}
+        />
       )}
 
       {hasStarted && (
