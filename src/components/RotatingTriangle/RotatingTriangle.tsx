@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styles from './RotatingTriangle.module.css'
 import dzogChanFace from '../../assets/dzog-chan-face.svg'
-import { POKED_SOUNDS } from '../../poked-sounds'
-import { DRAGGED_SOUNDS } from '../../dragged-sounds'
-import { PICKED_SOUNDS } from '../../picked-sounds'
+import { POKED_SOUNDS } from '../../config/sounds/poked-sounds'
+import { DRAGGED_SOUNDS } from '../../config/sounds/dragged-sounds'
+import { PICKED_SOUNDS } from '../../config/sounds/picked-sounds'
 import { triggerHaptic } from '../../utils/haptic'
 
 interface RotatingTriangleProps {

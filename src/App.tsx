@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import OpenAI from 'openai'
-import { DZOGCHEN_SYSTEM_PROMPT } from './dzogchen-prompt'
-import { getRandomGuidance } from './initial-guidance'
-import { generateSpeech, playAudio, stopCurrentAudio } from './elevenlabs-config'
+import { DZOGCHEN_SYSTEM_PROMPT } from './config/prompts/dzogchen-prompt'
+import { getRandomGuidance } from './config/prompts/initial-guidance'
+import { generateSpeech, playAudio, stopCurrentAudio } from './config/api/elevenlabs-config'
 import RotatingTriangle from './components/RotatingTriangle'
 import ToggleButton from './components/ToggleButton'
 import { triggerHaptic } from './utils/haptic'
 import { playClickSound, setMuted } from './utils/sounds'
-import { MUSIC_TRACKS } from './music-tracks'
+import { MUSIC_TRACKS } from './config/sounds/music-tracks'
 import './App.css'
 
 const openai = new OpenAI({
