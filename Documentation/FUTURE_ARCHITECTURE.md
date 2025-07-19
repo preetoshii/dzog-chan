@@ -1,308 +1,80 @@
-# Future Architecture: Dzog-chan Meditation Playground
+Here’s a draft section for your Design Document – Tech Stack under a subsection focused on React Web + Capacitor. It’s written for clarity, rigor, and justification, assuming you’re pitching this architecture as deliberate and forward-compatible.
 
-## Philosophy
+⸻
 
-**Core Principle**: A living, breathing meditation toy that surprises, confuses, and awakens.
+🧱 Tech Stack – Frontend Architecture: React Web + Capacitor Hybrid
 
-This is not an app with features—it's a playground where presence emerges through unexpected interactions. Every technical decision should support spontaneous, modular additions that can appear and disappear based on mysterious conditions.
+Overview
 
-## Architectural Principles
+The app will be architected as a React Web application, built with Vite and modern JavaScript/TypeScript standards, and then wrapped with Capacitor to deploy seamlessly to iOS and Android app stores. This approach allows us to maintain a single codebase that is:
+	•	LLM-friendly (for co-development with tools like Claude Code)
+	•	Highly modular and composable
+	•	Web-first by design, while retaining access to native capabilities when needed
 
-### 1. **Always Complete, Always Growing**
-- No roadmaps, no versions
-- Each feature is self-contained
-- New additions don't break existing magic
-- Features can be ephemeral
+The stack is optimized for minimalist, expressive interfaces with smooth animation and agent-like interactions—blurring the line between app and game without sacrificing development velocity or maintainability.
 
-### 2. **Surprise-First Development**
-- Features should be easy to hide/reveal
-- Time-based, probability-based, condition-based triggers
-- Nothing is predictable
+⸻
 
-### 3. **Bare Metal Minimalism**
-- Less abstraction, more direct code
-- Prefer native APIs over heavy libraries
-- Every dependency must earn its place
-- Raw power over convenience
+Why React Web?
 
-## Tech Stack
+React Web provides the cleanest, most expressive environment for building component-based interfaces with declarative state flows and animation logic. It allows us to:
+	•	Build the assistant character, input system, and interactive UI as modular, reusable components
+	•	Use animation libraries like Framer Motion to orchestrate transitions, draggables, and gesture-based effects with smooth frame pacing
+	•	Leverage the full browser rendering stack, including CSS transitions, layout primitives, and Web Audio API
+	•	Collaborate efficiently using Git and Claude-powered development, thanks to highly readable and diffable source files
 
-### Core
-```
-React Native (with Expo)
-├── Cross-platform from single codebase
-├── Direct access to native APIs
-├── Hot reload for rapid experimentation
-└── Easy deployment to phones
+This enables rapid prototyping, fast iteration, and high fidelity in crafting a playful, animation-rich UI that retains clarity and modularity.
 
-TypeScript
-├── Just enough type safety
-├── Allows wild experiments
-└── Self-documenting
+⸻
 
-Moti + Reanimated 2
-├── Framer Motion-like API
-├── Smooth, native animations
-├── Gesture handling
-└── Physics-based interactions
-```
+Why Capacitor?
 
-### Data & State
-```
-Zustand (Simple state)
-├── No boilerplate
-├── Direct mutations
-├── Persist middleware
-└── Devtools when needed
+Capacitor is used to wrap the React Web app into installable native apps on iOS and Android, enabling access to native features while preserving the core logic and rendering in the web layer.
 
-AsyncStorage (Local first)
-├── Conversation history
-├── User preferences  
-├── Feature unlock states
-└── Time-based triggers
+This hybrid model allows us to:
+	•	Ship to the App Store and Play Store with a single codebase
+	•	Access native APIs like:
+	•	Haptics
+	•	Device sensors (gyroscope, orientation, camera)
+	•	Audio routing and playback
+	•	Custom overlays and foreground activities (Android)
+	•	Implement simulated experiences (e.g. fictional “call UI”) that feel native but are still driven from web logic
+	•	Maintain maximum compatibility with web deployments, allowing the same app to be accessed in-browser without changes
 
-Supabase (When needed)
-├── Anonymous analytics
-├── Shared experiences
-├── Research data
-└── But keep it minimal
-```
+Capacitor acts as a lightweight native shell, not an abstraction layer. It respects the boundaries of the platform, offers clean plugin APIs, and gives us the option to write custom native plugins in Swift/Kotlin only where necessary.
 
-### AI & Language
-```
-OpenAI API
-├── GPT-4 for Zog-chan's responses
-├── Context-aware teachings
-├── Personality consistency
-├── Minimal token usage
+⸻
 
-Prompt Engineering
-├── System prompts as features
-├── Dynamic prompt modification
-├── Context injection (time, surprises, etc)
-└── Keep prompts weird
-```
+Performance Considerations
 
-### Audio & Voice
-```
-React Native Sound
-├── Simple audio playback
-├── Multiple simultaneous sounds
-└── Background audio
+Capacitor uses the same rendering engines as Chrome (Android WebView) and Safari (iOS WKWebView). As a result, performance is effectively equivalent to what we observe when testing in Chrome Mobile or Safari Mobile:
+	•	60fps animation is achievable using transform- and opacity-based animations
+	•	Framer Motion-based transitions perform smoothly on modern devices
+	•	No reliance on WebGL or canvas rendering ensures lower GPU load and broader compatibility
 
-React Native Audio Recorder
-├── Voice input
-├── Meditation recordings
-└── Phone call features
+Android’s WebView can vary slightly between devices; we will test across tiers (Pixel, Samsung, low-end Android) to ensure fluidity.
 
-ElevenLabs API
-├── Dynamic speech generation
-├── Voice modulation
-└── Keep it mysterious
-```
+⸻
 
-## Architecture Patterns
+Developer Experience
 
-### 1. Feature Modules
-```typescript
-// Each feature is a self-contained module
-features/
-├── surprise-moment/
-│   ├── SurpriseMoment.tsx      // Component
-│   ├── surpriseTrigger.ts      // Logic
-│   ├── sounds/                 // Assets
-│   └── index.ts               // Public API
-├── phone-calls/
-├── zogstagram/
-└── meditation-guide/
-```
+This stack provides the best available blend of:
+	•	Creativity (through flexible web-based UI logic)
+	•	Maintainability (with clean modular source)
+	•	Collaboration (fully Git-based, no binary scenes or opaque layouts)
+	•	AI-assisted development (Claude/LLMs can work with React far more effectively than Flutter or React Native)
 
-### 2. Trigger System
-```typescript
-// Central trigger manager for all time/condition based features
-interface Trigger {
-  id: string
-  condition: () => boolean  // When to show
-  priority: number         // Conflict resolution
-  feature: () => void      // What to show
-  ephemeral?: boolean      // One-time only?
-}
+The entire team—including AI tools—can operate on the same codebase, contributing features, polishing animations, and integrating backend APIs (OpenAI, ElevenLabs) without context switching or fighting native-specific syntax.
 
-// Examples:
-triggers.register({
-  id: 'midnight-whisper',
-  condition: () => new Date().getHours() === 0,
-  feature: () => showWhisperMode(),
-  ephemeral: true
-})
-```
+⸻
 
-### 3. Sound Manager
-```typescript
-// Centralized sound system for overlapping audio
-class Soundscape {
-  layers: Map<string, Sound>
-  
-  play(id: string, options: {
-    volume?: number
-    pitch?: number  
-    loop?: boolean
-    fadeIn?: number
-  })
-  
-  morph(from: string, to: string, duration: number)
-  crossfade(sounds: string[], pattern: 'random' | 'sequential')
-}
-```
+Summary
 
-### 4. Presence Detection
-```typescript
-// Know when user needs awakening
-interface PresenceMonitor {
-  idleTime: number
-  scrollVelocity: number
-  tapFrequency: number
-  conversationMood: 'seeking' | 'playing' | 'serious'
-  
-  shouldIntervene(): boolean
-  interventionType(): 'gentle' | 'shock' | 'ignore'
-}
-```
+React Web + Capacitor is not just a compromise between platforms—it is the best-fit architecture for a system that:
+	•	Lives on the edge of app and game
+	•	Requires smooth, expressive UI logic
+	•	Integrates deeply with voice/audio APIs
+	•	May eventually grow into deeper native functionality (e.g. app blocking, foreground overlays)
+	•	Must be co-developed rapidly, in a clean, inspectable, highly hackable environment
 
-## Feature Implementation Guide
-
-### Adding a New Surprise
-
-1. **Create Feature Module**
-```typescript
-// features/moon-howl/index.ts
-export const MoonHowl = {
-  trigger: {
-    condition: () => isFullMoon() && Math.random() > 0.95,
-    priority: 10
-  },
-  
-  component: () => {
-    playSound('wolf-howl.mp3', { pitch: 0.8 })
-    return <MotiView>🌙</MotiView>
-  }
-}
-```
-
-2. **Register with System**
-```typescript
-// App.tsx
-features.register(MoonHowl)
-// That's it. System handles the rest.
-```
-
-### State Shape
-```typescript
-// Keep it flat and direct
-interface AppState {
-  // Conversation
-  messages: Message[]
-  responseTime: number
-  offTopicCount: number
-  
-  // Presence
-  lastActiveTime: number
-  surpriseHistory: string[]
-  meditationStats: MeditationStats
-  
-  // Features
-  unlockedFeatures: Set<string>
-  featureStates: Map<string, any>  // Let features manage own state
-  
-  // Temporary
-  activeModals: string[]
-  currentMood: 'playful' | 'serious' | 'mysterious'
-}
-```
-
-## Mobile-First Considerations
-
-### Gesture System
-```typescript
-// Every element can be interactive
-<Pressable
-  onPress={handleTap}
-  onLongPress={handleHold}
-  onPressOut={handleRelease}
-  delayLongPress={150}
->
-  <AnimatedTriangle />
-</Pressable>
-```
-
-### Background Capabilities
-- Meditation timers that run when app is closed
-- Surprise notifications at random times
-- Phone calls that feel real
-
-
-## Development Workflow
-
-### 1. Experiment Freely
-```bash
-# New feature branch
-git checkout -b feature/gravity-meditation
-
-# Try wild ideas
-npm run ios  # See it instantly
-
-# If it sparks presence, keep it
-# If not, delete without mercy
-```
-### 3. Release Randomly
-- No announcements
-- No changelogs  
-- Users discover naturally
-- Some features only 0.1% will ever see
-
-## Anti-Patterns to Avoid
-
-❌ **Over-engineering**
-- No Redux unless you hate yourself
-- No microservices 
-- No design systems
-- No component libraries
-
-❌ **Predictability**
-- No consistent navigation
-- No loading spinners (use something weird)
-- No standard UI patterns
-- No tutorials
-
-❌ **Comfort**
-- No smooth onboarding
-- No helpful error messages
-- No undo buttons
-- No settings (the app decides)
-
-## Future Evolution
-
-This architecture assumes:
-- Features appear and disappear
-- The app has moods and preferences
-- Not everything needs to make sense
-- Bugs might be features
-- The goal is presence, not perfection
-
-The best architecture is one that gets out of the way and lets magic happen.
-
-## Implementation Checklist
-
-- [ ] Port to React Native with Expo
-- [ ] Implement trigger system
-- [ ] Create feature module structure
-- [ ] Add sound manager
-- [ ] Build presence detection
-- [ ] Create first 5 surprise features
-- [ ] Test on unsuspecting humans
-- [ ] Delete what doesn't spark presence
-- [ ] Repeat forever
-
----
-
-*Remember: This is a playground, not a product. Play accordingly.*
+This stack gives us maximum freedom at minimum cost—technically, creatively, and collaboratively.

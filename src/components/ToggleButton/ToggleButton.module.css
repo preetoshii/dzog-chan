@@ -1,5 +1,5 @@
 /* Reusable toggle button styles */
-.toggle-button {
+.toggleButton {
   position: absolute;
   top: 2rem;
   width: 3rem;
@@ -18,58 +18,79 @@
   user-select: none;
 }
 
-.toggle-button svg {
+.toggleButton svg {
   width: 1.5rem;
   height: 1.5rem;
 }
 
 /* Dark mode styles */
-.dark .toggle-button {
+:global(.dark) .toggleButton {
   background-color: rgba(255, 255, 255, 0);
   color: rgba(255, 255, 255, 0.5);
   transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
-.dark .toggle-button.ui-fade-in:not(.show) {
+:global(.dark) .toggleButton.uiFadeIn:not(.show) {
   opacity: 0.5;
 }
 
-.dark .toggle-button.show {
+:global(.dark) .toggleButton.show {
   opacity: 1;
   color: rgba(255, 255, 255, 0.7);
 }
 
-.dark .toggle-button:hover,
-.dark .toggle-button.show:hover {
+:global(.dark) .toggleButton:hover,
+:global(.dark) .toggleButton.show:hover {
   background-color: rgba(255, 255, 255, 0.25);
   color: #fff;
   opacity: 1;
 }
 
 /* Light mode styles */
-.light .toggle-button {
+:global(.light) .toggleButton {
   background-color: rgba(0, 0, 0, 0);
   color: rgba(0, 0, 0, 0.5);
   transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
-.light .toggle-button.ui-fade-in:not(.show) {
+:global(.light) .toggleButton.uiFadeIn:not(.show) {
   opacity: 0.5;
 }
 
-.light .toggle-button.show {
+:global(.light) .toggleButton.show {
   opacity: 1;
   color: rgba(0, 0, 0, 0.6);
 }
 
-.light .toggle-button:hover,
-.light .toggle-button.show:hover {
+:global(.light) .toggleButton:hover,
+:global(.light) .toggleButton.show:hover {
   background-color: rgba(0, 0, 0, 0.1);
   color: #000;
   opacity: 1;
 }
 
 /* Active state modifier */
-.toggle-button.active {
+.active {
   opacity: 1;
+}
+
+/* UI fade in animation */
+.uiFadeIn {
+  animation: fadeIn 2s ease-in-out forwards;
+}
+
+/* Show state */
+.show {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
 }

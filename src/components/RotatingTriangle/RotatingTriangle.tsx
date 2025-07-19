@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
-import './RotatingTriangle.css'
-import dzogChanFace from './assets/dzog-chan-face.svg'
-import { POKED_SOUNDS } from './poked-sounds'
-import { DRAGGED_SOUNDS } from './dragged-sounds'
-import { PICKED_SOUNDS } from './picked-sounds'
-import { triggerHaptic } from './utils/haptic'
+import styles from './RotatingTriangle.module.css'
+import dzogChanFace from '../../assets/dzog-chan-face.svg'
+import { POKED_SOUNDS } from '../../poked-sounds'
+import { DRAGGED_SOUNDS } from '../../dragged-sounds'
+import { PICKED_SOUNDS } from '../../picked-sounds'
+import { triggerHaptic } from '../../utils/haptic'
 
 interface RotatingTriangleProps {
   size?: number
@@ -633,9 +633,9 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
     }
   }, [])
   return (
-    <div className="triangle-float-wrapper">
+    <div className={styles.triangleFloatWrapper}>
       <div 
-        className={`rotating-triangle-container ${isHovered ? 'hovered' : ''} ${isPoked ? 'poked' : ''} ${isDragging ? 'dragging' : ''}`}
+        className={`${styles.rotatingTriangleContainer} ${isHovered ? styles.hovered : ''} ${isPoked ? styles.poked : ''} ${isDragging ? styles.dragging : ''}`}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -656,7 +656,7 @@ const RotatingTriangle: React.FC<RotatingTriangleProps> = ({ size = 144, onClick
         viewBox="0 0 144 144" 
         fill="none" 
         xmlns="http://www.w3.org/2000/svg"
-        className="rotating-triangle"
+        className={styles.rotatingTriangle}
       >
         <path 
           d="M72 8 L128 108 L16 108 Z" 

@@ -1,5 +1,5 @@
 import React from 'react'
-import './ToggleButton.css'
+import styles from './ToggleButton.module.css'
 
 interface ToggleButtonProps {
   icon: React.ReactNode
@@ -26,7 +26,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
 
   return (
     <button
-      className={`toggle-button ui-fade-in ${isActive ? 'active' : ''} ${showAlways ? 'show' : ''} ${className}`}
+      className={`${styles.toggleButton} ${styles.uiFadeIn} ${isActive ? styles.active : ''} ${showAlways ? styles.show : ''} ${className}`}
       onClick={onClick}
       aria-label={ariaLabel}
       style={positionStyle}

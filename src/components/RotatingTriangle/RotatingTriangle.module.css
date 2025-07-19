@@ -1,9 +1,9 @@
 /* Wrapper handles the float animation */
-.triangle-float-wrapper {
+.triangleFloatWrapper {
   animation: float 6s ease-in-out infinite;
 }
 
-.rotating-triangle-container {
+.rotatingTriangleContainer {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,12 +15,15 @@
   touch-action: none;
 }
 
-.rotating-triangle-container.dragging {
+.hovered {
+  /* Hover state - handled by inline styles in component */
+}
+
+.dragging {
   cursor: grabbing !important;
 }
 
-/* Poke effect - quick scale animation */
-.rotating-triangle-container.poked {
+.poked {
   animation: poke 0.2s ease-out;
 }
 
@@ -45,7 +48,7 @@
   }
 }
 
-.rotating-triangle {
+.rotatingTriangle {
   animation: continuousRotate 20s linear infinite;
   opacity: 0.8;
   transform-origin: center center; /* Use center keyword for reliability */
